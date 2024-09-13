@@ -1,0 +1,22 @@
+.body__left {
+  width: 300px;
+}
+
+.body__right {
+  width: 300px;
+}
+
+.body__center__logs {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  height: 0px;
+}
+
+.scoreboard__item {
+  display: grid;
+  grid-template-columns: 5fr 1fr;
+}
+
+.scoreboard__item--destroyed {
+  opacity: 0.5;
+}

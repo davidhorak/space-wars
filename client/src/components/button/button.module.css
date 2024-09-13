@@ -1,0 +1,21 @@
+.button {
+  font-family: "Ponde", sans-serif;
+  background-color: var(--color-button-bg-primary);
+  color: var(--color-button-fg-primary);
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+}
+
+.button:hover {
+  background-color: var(--color-button-bg-primary-hover);
+}
+
+.button--disabled {
+  background-color: var(--color-disabled-bg);
+  color: var(--color-disabled-fg);
+  cursor: default;
+}
+.button--disabled:hover {
+  background-color: var(--color-disabled-bg);
+  cursor: default;
+}

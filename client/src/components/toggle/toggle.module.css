@@ -1,0 +1,53 @@
+:root {
+  --toggle-width: 60px;
+  --toggle-height: 30px;
+  --toggle-transition: 0.4s;
+  --toggle-color-background: #ccc;
+  --toggle-color-primary: var(--color-primary);
+}
+
+.toggle {
+  width: var(--toggle-width);
+  height: var(--toggle-height);
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle__slider {
+  cursor: pointer;
+  background-color: var(--toggle-color-background);
+  -webkit-transition: var(--toggle-transition);
+  transition: var(--toggle-transition);
+  border-radius: calc(var(--toggle-height) / 2);
+}
+
+.toggle__slider:before {
+  position: absolute;
+  content: "";
+  height: calc(var(--toggle-height) - 8px);
+  width: calc(var(--toggle-height) - 8px);
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: var(--toggle-transition);
+  transition: var(--toggle-transition);
+  border-radius: 50%
+}
+
+.toggle input:checked + .toggle__slider {
+  background-color: var(--toggle-color-primary);
+}
+
+.toggle input:focus + .toggle__slider {
+  box-shadow: 0 0 1px var(--toggle-color-primary);
+}
+
+.toggle input:checked + .toggle__slider:before {
+  -webkit-transform: translateX(calc(var(--toggle-width) - var(--toggle-height)));
+  -ms-transform: translateX(calc(var(--toggle-width) - var(--toggle-height)));
+  transform: translateX(calc(var(--toggle-width) - var(--toggle-height)));
+}

@@ -1,0 +1,26 @@
+:root {
+  --color-primary: #d1b921;
+
+  --color-fg-default: #f2f2f2;
+  --color-bg-default: #222222;
+
+  --color-button-fg-primary: var(--color-fg-default);
+  --color-button-bg-primary: var(--color-primary);
+  --color-button-bg-primary-hover: #b39d0f;
+
+  --color-disabled-bg: #666666;
+  --color-disabled-fg: #999999;
+
+  --color-palette-0: hsl(56, 100%, 80%);
+  --color-palette-1: hsl(27, 100%, 80%);
+  --color-palette-2: hsl(356, 88%, 80%);
+  --color-palette-3: hsl(311, 65%, 80%);
+  --color-palette-4: hsl(263, 69%, 80%);
+  --color-palette-5: hsl(215, 81%, 75%);
+  --color-palette-6: hsl(195, 84%, 69%);
+  --color-palette-7: hsl(185, 86%, 69%);
+  --color-palette-8: hsl(167, 83%, 70%);
+  --color-palette-9: hsl(126, 86%, 77%);
+
+  --base-font-size: 16;
+}

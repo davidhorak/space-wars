@@ -1,0 +1,41 @@
+.spinner {
+  border: 12px solid rgb(53, 53, 53);
+  border-top: 12px solid var(--color-primary);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  animation: spin 1s linear infinite;
+  flex-shrink: 0;
+  display: inline-block;
+
+  &--small {
+    border-width: 6px;
+    width: 24px;
+    height: 24px;
+  }
+
+  &--large {
+    width: 96px;
+    height: 96px;
+  }
+}
+
+.spinner-small {
+  border-width: 6px;
+  width: 24px;
+  height: 24px;
+}
+
+.spinner-large {
+  width: 96px;
+  height: 96px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
