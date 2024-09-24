@@ -37,7 +37,7 @@ func main() {
 			}
 		}
 
-		instance = game.New(physics.Size{Width: width, Height: height}, seed)
+		instance = game.NewGame(physics.Size{Width: width, Height: height}, seed)
 	})
 	tickCb := JsFuncIn(func(args []js.Value) {
 		method := Method("tick", args)
