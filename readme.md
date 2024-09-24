@@ -23,51 +23,64 @@ https://github.com/user-attachments/assets/f78ffe1a-0e60-4d07-b52e-3ddbcc31a05e
 - **Learning and Iteration**: After each match, players can analyze their bots' performance, tweak their code,
   and refine their strategies, fostering a cycle of learning and improvement.
 
+![space-wars_screenshot](https://github.com/user-attachments/assets/802b0324-44bc-4659-8c83-2500029e43ba){: .mx-auto}
+
 In Space Wars, intelligence and innovation are your greatest weapons. Code wisely, pilot your ships with precision,
 and claim your place among the stars!
 
 > Updated: Sep 23, 2024
 
+> Notes:
+>
+> - 1 space unit is equal to **1** meter.
+> - The actual numbers are not final and are subject to change.
+
 ### Spaceship
 
-- Starts with 100 points of health and 100 points of energy.
+- Starts with **100 points** of health and **100 points** of energy.
+- The size of the spaceship is **30** meters (radius).
 - Has 3 engines
   - Main truster (back)
   - 2 navigation trusters (sides)
 - Each could be operated independently
-- Has rechargeable fuel. Using the engines depletes the energy. Not using the engines recharges the energy.
+- Using the engines and firing lasers depletes the energy.
+- Not using the engines recharges the energy. The recharge rate is **12.5** energy per second.
 - Can shoot laser beams - consumes energy.
 - Can shoot rockets - consumes energy and has a limited amount.
 
 #### Movement
 
-- Each engine has its own throttle, from 0 to 100.
+- Each engine has its own throttle, from **0** to **100**.
+- The main thruster consumes **12.5** energy per second.
+- The navigation thrusters consume **6.66** energy per second.
 - The trust from all engines is added together to get the total trust.
+- The side thrusters are **2** times weaker than the main thruster.
 - The trust is applied in the direction of the spaceship.
 - Using the engines consumes energy, x/s for the main thruster, and y/s for the navigation thrusters.
-- The maximum speed is **X** m/s.
-- [ ] add the actual numbers
-- [ ] add images
+- The maximum speed is **192** m/s.
+- The spaceship will reach the max speed in **5** seconds with full throttle.
+- The spaceship will come to a stop in **10** seconds without any thrust, caused by drag.
+
+https://github.com/user-attachments/assets/84e4e892-7ec1-4950-a1c2-72afd8f28de1
 
 #### Laser
 
-- Laser consumes **X** energy.
-- Laser has reload time. **X**
-- Laser has a damage radius. **X**
+- Laser has a speed of **320** m/s.
+- Laser consumes **6** energy.
+- Laser has a lifespan of **5** seconds.
+- Laser deals **20** damage.
 - Laser must hit precisely the target.
-- Laser is faster than the rocket.
-- [ ] add the actual numbers
-- [ ] add images
+- Laser has reload time. **250** milliseconds.
 
 #### Rockets
 
-- Rockets consume **X** energy.
-- Rockets have a limited amount. **10 per match**.
-- Rockets have large damage trigger **X** radius, hence it can hit opponent in close proximity.
-- Rockets have reload time. **X**
-- Rockets cause **X** damage.
-- [ ] add the actual numbers
-- [ ] add images
+- Rocket has a speed of **274** m/s.
+- Rocket consume **20** energy.
+- Rocket has a lifespan of **10** seconds.
+- Rocket deals **60** damage to the target.
+- Rocket has a **20** meters radius of explosion.
+- Each ship has **10** rockets.
+- Rocket has **1** second reload time.
 
 #### Collisions
 
@@ -75,11 +88,24 @@ and claim your place among the stars!
 - A spaceship colliding with an opponent destroys both spaceships.
 - A laser and a rocket launched do not collide with its launcher.
 
+### Start Location
+
+- The spaceships are evenly distributed around the center of the map on a circle with a radius of 3/4 of the map width/height.
+- The spaceships are randomly rotated.
+- The position and rotation is randomized every match.
+
+### Asteroids
+
+- Asteroids are randomly generated on the map.
+- The number of asteroids is randomized between **2** and **7**.
+- The size of the asteroids is randomized between **10** and **30**.
+- The minimum distance between asteroids is **10**.
+
 ### Scoring
 
-- Hitting an opponent with a rocket scores **X** points.
-- Hitting an opponent with a laser scores **X** points.
-- [ ] add the actual numbers
+- Hitting an opponent with a rocket scores **30** points.
+- Hitting an opponent with a laser scores **10** points.
+- Killing an opponent scores **100** points.
 
 ---
 
@@ -128,6 +154,8 @@ powershell -Command { $env:GOOS="js"; $env:GOARCH="wasm"; go build -o ./client/p
 - [ ] Add all kernel tests
 - [ ] Optimize the performance of the game
 - [ ] Polish the game tiles
+- [ ] Allow to load the game state form a json string
+- [ ] Add a guide how to run the kernel without the UI client.
 - [ ] [Spaceships TODOs](spaceships/readme.md)
 
 ---
