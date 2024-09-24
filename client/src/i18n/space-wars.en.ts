@@ -2,7 +2,7 @@ export default {
   title: "Space Wars",
   copyright: "Copyright © {{year}} David Horak",
   views: {
-    home: {
+    battlefield: {
       pageTitle: "$t(title) / Battle Room",
       options: {
         title: "Options:",

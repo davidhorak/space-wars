@@ -2,7 +2,7 @@ import { RouteObject } from 'react-router-dom';
 
 import { Path, PathValues } from './path';
 import { MainLayout } from '../views/layout';
-import HomeView from '../views/home/Home';
+import BattlefieldView from '../views/battlefield/battlefield';
 import { PageNotFoundView } from '../views/pageNotFound';
 
 export type Route = RouteObject & {
@@ -12,11 +12,11 @@ export type Route = RouteObject & {
 
 export const routes: Route[] = [
     {
-        path: Path.Home,
+        path: Path.Battlefield,
         // @ts-expect-error react-router-dom types are not correct
-        element: MainLayout(HomeView, {
-            className: 'view--home',
-            i18n: { pageTitle: 'views.home.pageTitle' }
+        element: MainLayout(BattlefieldView, {
+            className: 'view--battlefield',
+            i18n: { pageTitle: 'views.battlefield.pageTitle' }
         })
     },
     {
