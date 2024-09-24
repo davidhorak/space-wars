@@ -6,7 +6,7 @@ futuristic spaceships in a high-stakes interstellar arena.
 **The goal is simple**: code your bot to outmaneuver, outgun, and outsmart the competition,
 becoming the last ship standing in a relentless battle for supremacy.
 
-[ ] Add video and screenshots
+https://github.com/user-attachments/assets/f78ffe1a-0e60-4d07-b52e-3ddbcc31a05e
 
 ### Game/Simulation Features:
 
