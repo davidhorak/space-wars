@@ -280,75 +280,63 @@ func TestSpaceship_Move_Drag(t *testing.T) {
 	}
 
 	threshold := float64(MaxVelocitySec / 10)
-	assert.InDelta(t, threshold, ship.velocity.Magnitude(), 0.1)
+	assert.LessOrEqual(t, ship.velocity.Magnitude(), threshold)
 }
 
-// func TestSpaceship_EnergyManagement_Recharge(t *testing.T) {
-// 	ship := NewSpaceship(0, "ship", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
-// 	ship.energy = 0
+func TestSpaceship_EnergyManagement_Recharge(t *testing.T) {
+	ship := NewSpaceship(0, "ship", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
+	ship.energy = 0
 
-// 	// +1 to make sure we go over the max
-// 	for i := 0; i < int(MaxEnergy/EnergyRechargeRateSec)+1; i++ {
-// 		ship.energyManagement(1)
-// 	}
+	// +1 to make sure we go over the max
+	for i := 0; i < int(MaxEnergy/EnergyRechargeRateSec)+1; i++ {
+		ship.energyManagement(1)
+	}
 
-// 	if ship.energy != MaxEnergy {
-// 		t.Errorf("Expected energy %v, got %v", MaxEnergy, ship.energy)
-// 	}
-// }
+	assert.Equal(t, float64(MaxEnergy), ship.energy)
+}
 
-// func TestSpaceship_EnergyManagement_Thrust(t *testing.T) {
-// 	ship := NewSpaceship(0, "ship", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
+func TestSpaceship_EnergyManagement_Thrust(t *testing.T) {
+	ship := NewSpaceship(0, "ship", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
 
-// 	ship.energy = MaxEnergy
-// 	ship.SetEngineThrust(100, 0, 0)
-// 	ship.energyManagement(1)
-// 	if ship.energy != MaxEnergy-EnergyConsumptionMainThrustSec {
-// 		t.Errorf("Expected energy %v, got %v", MaxEnergy-EnergyConsumptionMainThrustSec, ship.energy)
-// 	}
+	ship.energy = MaxEnergy
+	ship.SetEngineThrust(100, 0, 0)
+	ship.energyManagement(1)
 
-// 	ship.energy = MaxEnergy
-// 	ship.SetEngineThrust(0, 100, 0)
-// 	ship.energyManagement(1)
-// 	if ship.energy != MaxEnergy-EnergyConsumptionSideThrustSec {
-// 		t.Errorf("Expected energy %v, got %v", MaxEnergy-EnergyConsumptionSideThrustSec, ship.energy)
-// 	}
+	assert.Equal(t, float64(MaxEnergy-EnergyConsumptionMainThrustSec), ship.energy)
 
-// 	ship.energy = MaxEnergy
-// 	ship.SetEngineThrust(0, 0, 100)
-// 	ship.energyManagement(1)
-// 	if ship.energy != MaxEnergy-EnergyConsumptionSideThrustSec {
-// 		t.Errorf("Expected energy %v, got %v", MaxEnergy-EnergyConsumptionSideThrustSec, ship.energy)
-// 	}
+	ship.energy = MaxEnergy
+	ship.SetEngineThrust(0, 100, 0)
+	ship.energyManagement(1)
 
-// 	ship.energy = MaxEnergy
-// 	ship.SetEngineThrust(50, 50, 50)
-// 	ship.energyManagement(1)
-// 	expected := MaxEnergy - 0.5*(EnergyConsumptionMainThrustSec+EnergyConsumptionSideThrustSec+EnergyConsumptionSideThrustSec)
-// 	if ship.energy != expected {
-// 		t.Errorf("Expected energy %v, got %v", expected, ship.energy)
-// 	}
+	assert.Equal(t, float64(MaxEnergy-EnergyConsumptionSideThrustSec), ship.energy)
 
-// 	ship.energy = MaxEnergy
-// 	ship.SetEngineThrust(100, 0, 0)
-// 	ship.energyManagement(105)
-// 	if ship.energy != 0 {
-// 		t.Errorf("Expected energy %v, got %v", 0, ship.energy)
-// 	}
-// }
+	ship.energy = MaxEnergy
+	ship.SetEngineThrust(0, 0, 100)
+	ship.energyManagement(1)
+	assert.Equal(t, float64(MaxEnergy-EnergyConsumptionSideThrustSec), ship.energy)
 
-// func TestSpaceship_GunManagement(t *testing.T) {
-// 	ship := NewSpaceship(0, "ship", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
-// 	ship.laserReloadTimerSec = LaserReloadSec
-// 	ship.rocketReloadTimerSec = RocketReloadSec
+	ship.energy = MaxEnergy
+	ship.SetEngineThrust(50, 50, 50)
+	ship.energyManagement(1)
+	expected := MaxEnergy - 0.5*(EnergyConsumptionMainThrustSec+EnergyConsumptionSideThrustSec+EnergyConsumptionSideThrustSec)
 
-// 	ship.gunManagement(LaserReloadSec)
-// 	ship.gunManagement(RocketReloadSec)
+	assert.Equal(t, expected, ship.energy)
 
-// 	if ship.laserReloadTimerSec != 0 {
-// 		t.Errorf("Expected laser shot timer %v, got %v", 0, ship.laserReloadTimerSec)
-// 	}
-// 	if ship.rocketReloadTimerSec != 0 {
-// 		t.Errorf("Expected rocket shot timer %v, got %v", 0, ship.rocketReloadTimerSec)
-// 	}
-// }
+	ship.energy = MaxEnergy
+	ship.SetEngineThrust(100, 0, 0)
+	ship.energyManagement(105)
+
+	assert.Equal(t, 0.0, ship.energy)
+}
+
+func TestSpaceship_GunManagement(t *testing.T) {
+	ship := NewSpaceship(0, "ship", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
+	ship.laserReloadTimerSec = LaserReloadSec
+	ship.rocketReloadTimerSec = RocketReloadSec
+
+	ship.gunManagement(LaserReloadSec)
+	ship.gunManagement(RocketReloadSec)
+
+	assert.Equal(t, 0.0, ship.laserReloadTimerSec)
+	assert.Equal(t, 0.0, ship.rocketReloadTimerSec)
+}

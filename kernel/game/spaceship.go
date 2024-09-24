@@ -200,6 +200,21 @@ func (ship *Spaceship) OnCollision(other GameObject, gameManager *GameManager, o
 	}
 }
 
+func (ship *Spaceship) TakeDamage(damage float64, gameManager *GameManager, damageDealer *Spaceship) {
+	ship.health -= damage
+	if ship.health <= 0 {
+		ship.destroy(gameManager)
+		if damageDealer != nil {
+			gameManager.Logger().Kill(time.Now(), ship.name, damageDealer.name)
+			damageDealer.HasKilled(ship)
+		}
+	}
+}
+
+func (ship *Spaceship) AddScore(score float64) {
+	ship.score += score
+}
+
 func (ship *Spaceship) Serialize() map[string]interface{} {
 	return map[string]interface{}{
 		"type":      "spaceship",
@@ -289,21 +304,6 @@ func (ship *Spaceship) move(deltaTimeSec float64) {
 
 	ship.collider.SetPosition(ship.position)
 	// TODO: Apply rotation for the polygon collider
-}
-
-func (ship *Spaceship) TakeDamage(damage float64, gameManager *GameManager, damageDealer *Spaceship) {
-	ship.health -= damage
-	if ship.health <= 0 {
-		ship.destroy(gameManager)
-		if damageDealer != nil {
-			gameManager.Logger().Kill(time.Now(), ship.name, damageDealer.name)
-			damageDealer.HasKilled(ship)
-		}
-	}
-}
-
-func (ship *Spaceship) AddScore(score float64) {
-	ship.score += score
 }
 
 func (ship *Spaceship) destroy(gameManager *GameManager) {

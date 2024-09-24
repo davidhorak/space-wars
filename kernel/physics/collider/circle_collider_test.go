@@ -23,13 +23,13 @@ func TestCircleCollider_SetPosition(t *testing.T) {
 	}
 }
 
-// func TestCircleCollider_Radius(t *testing.T) {
-// 	circle := NewCircleCollider(physics.Vector2{X: 0, Y: 0}, 1)
-// 	expected := 1.0
-// 	if circle.Radius() != expected {
-// 		t.Errorf("Expected radius to be %v, but got %v", expected, circle.Radius())
-// 	}
-// }
+func TestCircleCollider_Radius(t *testing.T) {
+	circle := NewCircleCollider(physics.Vector2{X: 0, Y: 0}, 1)
+	expected := 1.0
+	if circle.Radius() != expected {
+		t.Errorf("Expected radius to be %v, but got %v", expected, circle.Radius())
+	}
+}
 
 func TestCircleCollider_CollidesWithSquare(t *testing.T) {
 	var tests = []struct {
