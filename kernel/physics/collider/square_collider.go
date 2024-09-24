@@ -47,6 +47,14 @@ func (square *SquareCollider) SetRotation(rotation float64) {
 	square.rotation = rotation
 }
 
+func (square *SquareCollider) Size() physics.Size {
+	return square.size
+}
+
+func (square *SquareCollider) SetSize(size physics.Size) {
+	square.size = size
+}
+
 func (square *SquareCollider) CollidesWith(other Collider) bool {
 	switch other := other.(type) {
 	case *SquareCollider:

@@ -20,8 +20,9 @@ const (
 type DamageType string
 
 const (
-	DamageTypeLaser  DamageType = "laser"
-	DamageTypeRocket DamageType = "rocket"
+	DamageTypeUnknown DamageType = "unknown"
+	DamageTypeLaser   DamageType = "laser"
+	DamageTypeRocket  DamageType = "rocket"
 )
 
 type Game struct {
@@ -32,7 +33,7 @@ type Game struct {
 	gracefulEndTimer float64
 }
 
-func New(size physics.Size, seed int64) *Game {
+func NewGame(size physics.Size, seed int64) *Game {
 	game := Game{
 		status:  Initialized,
 		size:    size,
@@ -83,14 +84,14 @@ func (game *Game) Update(deltaTimeMs float64) {
 		// Wrap around the screen
 		position := gameObject.Position()
 		if position.X < 0 {
-			gameObject.SetPosition(physics.Vector2{X: game.size.Width, Y: position.Y})
+			gameObject.SetPosition(physics.Vector2{X: game.size.Width - position.X, Y: position.Y})
 		} else if position.X > game.size.Width {
-			gameObject.SetPosition(physics.Vector2{X: 0, Y: position.Y})
+			gameObject.SetPosition(physics.Vector2{X: position.X - game.size.Width, Y: position.Y})
 		}
 		if position.Y < 0 {
-			gameObject.SetPosition(physics.Vector2{X: position.X, Y: game.size.Height})
+			gameObject.SetPosition(physics.Vector2{X: position.X, Y: game.size.Height - position.Y})
 		} else if position.Y > game.size.Height {
-			gameObject.SetPosition(physics.Vector2{X: position.X, Y: 0})
+			gameObject.SetPosition(physics.Vector2{X: position.X, Y: position.Y - game.size.Height})
 		}
 	}
 

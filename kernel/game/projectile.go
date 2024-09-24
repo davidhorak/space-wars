@@ -22,6 +22,21 @@ type Projectile struct {
 	explosionDurationSec float64
 }
 
+func NewProjectile(position physics.Vector2, velocity physics.Vector2, rotation float64, lifespanSec float64, damage float64, owner *Spaceship) *Projectile {
+	return &Projectile{
+		id:          NewUUID(),
+		enabled:     true,
+		damageType:  DamageTypeUnknown,
+		position:    position,
+		velocity:    velocity,
+		rotation:    rotation,
+		lifespanSec: lifespanSec,
+		damage:      damage,
+		owner:       owner,
+		collider:    collider.NewSquareCollider(position, 1, physics.Size{Width: 1, Height: 1}),
+	}
+}
+
 func (projectile *Projectile) ID() int64 {
 	return projectile.id
 }
@@ -101,15 +116,4 @@ func (projectile *Projectile) OnCollision(other GameObject, gameManager *GameMan
 
 func (projectile *Projectile) Serialize() map[string]interface{} {
 	return map[string]interface{}{}
-}
-
-func NewProjectile(position physics.Vector2, velocity physics.Vector2, rotation float64, lifespanSec float64, damage float64, owner *Spaceship) *Projectile {
-	return &Projectile{
-		position:    position,
-		velocity:    velocity,
-		rotation:    rotation,
-		lifespanSec: lifespanSec,
-		damage:      damage,
-		owner:       owner,
-	}
 }

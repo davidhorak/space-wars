@@ -95,6 +95,14 @@ func (ship *Spaceship) SetPosition(position physics.Vector2) {
 	ship.position = position
 }
 
+func (ship *Spaceship) SetStartPosition(position physics.Vector2) {
+	ship.startPosition = position
+}
+
+func (ship *Spaceship) SetStartRotation(rotation float64) {
+	ship.startRotation = rotation
+}
+
 func (ship *Spaceship) Update(deltaTimeMs float64, gameManager *GameManager) {
 	deltaTimeSec := deltaTimeMs / 1000
 
@@ -126,14 +134,6 @@ func (ship *Spaceship) SetEngineThrust(main, left, right float64) error {
 	ship.engine.leftThrust = left
 	ship.engine.rightThrust = right
 	return nil
-}
-
-func (ship *Spaceship) SetStartPosition(position physics.Vector2) {
-	ship.startPosition = position
-}
-
-func (ship *Spaceship) SetStartRotation(rotation float64) {
-	ship.startRotation = rotation
 }
 
 func (ship *Spaceship) FireLaser(gameManager *GameManager) error {

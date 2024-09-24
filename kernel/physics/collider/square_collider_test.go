@@ -40,6 +40,21 @@ func TestSquareCollider_SetRotation(t *testing.T) {
 	}
 }
 
+// func TestSquareCollider_Size(t *testing.T) {
+// 	square := NewSquareCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Size{Width: 2, Height: 2})
+// 	if square.Size() != physics.Size{Width: 2, Height: 2} {
+// 		t.Errorf("Expected size to be %v, but got %v", physics.Size{Width: 2, Height: 2}, square.Size())
+// 	}
+// }
+
+// func TestSquareCollider_SetSize(t *testing.T) {
+// 	square := NewSquareCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Size{Width: 2, Height: 2})
+// 	square.SetSize(physics.Size{Width: 3, Height: 3})
+// 	if square.Size() != physics.Size{Width: 3, Height: 3} {
+// 		t.Errorf("Expected size to be %v, but got %v", physics.Size{Width: 3, Height: 3}, square.Size())
+// 	}
+// }
+
 func TestSquareCollider_IsRotated(t *testing.T) {
 	var tests = []struct {
 		rotation float64

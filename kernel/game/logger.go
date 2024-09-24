@@ -41,14 +41,14 @@ type Logger interface {
 	GameState(time time.Time, state Status)
 }
 
-type logger struct {
-	messages []Message
-}
-
 func NewLogger() Logger {
 	return &logger{
 		messages: []Message{},
 	}
+}
+
+type logger struct {
+	messages []Message
 }
 
 func (logger *logger) Logs() []Message {

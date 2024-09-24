@@ -32,6 +32,10 @@ func (circle *CircleCollider) Rotation() float64 {
 	return 0
 }
 
+func (circle *CircleCollider) Radius() float64 {
+	return circle.radius
+}
+
 func (circle *CircleCollider) SetRotation(rotation float64) {}
 
 func NewCircleCollider(position physics.Vector2, radius float64) *CircleCollider {
