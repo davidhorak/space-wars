@@ -109,17 +109,24 @@ https://github.com/user-attachments/assets/84e4e892-7ec1-4950-a1c2-72afd8f28de1
 - Killing an opponent scores **100** points.
 
 ### Random Seed
+
 - The seed is a 64-bit integer.
 - The seed is used to generate the same map layout for the same seed.
 - Seed could be provided via URL parameters `seed`, e.g. `localhost:3000/?seed=1234567890`
 
 ### Battlefield Size
+
 - The width and height of the battlefield are set to **1024** (width) by **768** (height) meters.
 - The width and height could be overridden via URL parameters `width` and `height`, e.g. `localhost:3000/?width=1200&height=800`
 
 ### FPS
+
 - The FPS is set to **30**.
 - The FPS could be overridden via URL parameters `fps`, e.g. `localhost:3000/?fps=60`
+
+### Pause and Step
+
+- The game could be paused and run step by step. Each step is one tick of the game with delta time of **50** milliseconds.
 
 ---
 

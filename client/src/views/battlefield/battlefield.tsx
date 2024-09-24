@@ -178,7 +178,9 @@ const BattlefieldView = (): JSX.Element => {
     >
       <div className={classNames(styles.body__left, "pl-24 pr-12")}>
         {/* Options */}
-        <h2 className={classNames("h5")}>{t("views.battlefield.options.title")}</h2>
+        <h2 className={classNames("h5")}>
+          {t("views.battlefield.options.title")}
+        </h2>
         <div className={classNames("d-flex mt-12")}>
           <Toggle checked={showColliders} onChange={setShowColliders} />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
@@ -311,7 +313,9 @@ const BattlefieldView = (): JSX.Element => {
         )}
       </div>
       <div className={classNames(styles.body__right, "pr-24", "pl-12")}>
-        <h3 className={classNames("h5")}>{t("views.battlefield.scoreboard.title")}</h3>
+        <h3 className={classNames("h5")}>
+          {t("views.battlefield.scoreboard.title")}
+        </h3>
         <div className={classNames("mt-12")}>
           {scoreboard.map((state) => (
             <div
