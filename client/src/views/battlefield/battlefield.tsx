@@ -1,6 +1,5 @@
 import classNames from "classnames";
 import { Trans, useTranslation } from "react-i18next";
-import styles from "./home.module.css";
 import { CANVAS_ID, CANVAS_WIDTH, CANVAS_HEIGHT, FPS } from "../../client";
 import { engine as createEngine } from "../../client";
 import { useEffect, useState } from "react";
@@ -14,11 +13,12 @@ import { spaceshipColorClassName } from "../../components/log/spaceshipColorClas
 import { GameState } from "../../../../spaceships";
 import { useSearchParams } from "react-router-dom";
 import { Log } from "../../components/log";
+import styles from "./battlefield.module.css";
 
 let hasLoaded = false;
 let engine: Engine;
 
-const HomeView = (): JSX.Element => {
+const BattlefieldView = (): JSX.Element => {
   const { t } = useTranslation();
   const { setError, setStatus } = useAppStore();
   const [searchParams] = useSearchParams();
@@ -61,6 +61,9 @@ const HomeView = (): JSX.Element => {
       const height = searchParams.has("height")
         ? parseInt(searchParams.get("height")!)
         : CANVAS_HEIGHT;
+      const seed = searchParams.has("seed")
+        ? parseInt(searchParams.get("seed")!)
+        : undefined;
 
       try {
         const go = new Go();
@@ -70,7 +73,12 @@ const HomeView = (): JSX.Element => {
         );
         go.run(result.instance);
 
-        spaceWars.init(width, height);
+        if (seed) {
+          spaceWars.init(width, height, seed);
+        } else {
+          spaceWars.init(width, height);
+        }
+
         engine = await createEngine({
           canvasId: CANVAS_ID,
           width: width,
@@ -81,7 +89,7 @@ const HomeView = (): JSX.Element => {
         engine.onLogsChanged(setLogs);
         engine.onScoreboardChanged(setScoreboard);
 
-        setShowColliders(true);
+        setShowColliders(false);
         setShowNames(true);
         setShowHealth(true);
         setShowEnergy(true);
@@ -170,35 +178,37 @@ const HomeView = (): JSX.Element => {
     >
       <div className={classNames(styles.body__left, "pl-24 pr-12")}>
         {/* Options */}
-        <h2 className={classNames("h5")}>{t("views.home.options.title")}</h2>
+        <h2 className={classNames("h5")}>
+          {t("views.battlefield.options.title")}
+        </h2>
         <div className={classNames("d-flex mt-12")}>
           <Toggle checked={showColliders} onChange={setShowColliders} />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
-            {t("views.home.options.colliders")}
+            {t("views.battlefield.options.colliders")}
           </h3>
         </div>
         <div className={classNames("d-flex mt-12")}>
           <Toggle checked={showEnergy} onChange={setShowEnergy} />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
-            {t("views.home.options.energy")}
+            {t("views.battlefield.options.energy")}
           </h3>
         </div>
         <div className={classNames("d-flex mt-12")}>
           <Toggle checked={showHealth} onChange={setShowHealth} />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
-            {t("views.home.options.health")}
+            {t("views.battlefield.options.health")}
           </h3>
         </div>
         <div className={classNames("d-flex mt-12")}>
           <Toggle checked={showNames} onChange={setShowNames} />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
-            {t("views.home.options.names")}
+            {t("views.battlefield.options.names")}
           </h3>
         </div>
         <div className={classNames("d-flex mt-12")}>
           <Toggle checked={autoReset} onChange={setAutoReset} />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
-            {t("views.home.options.autoReset")}
+            {t("views.battlefield.options.autoReset")}
           </h3>
         </div>
         {/* Actions */}
@@ -208,7 +218,7 @@ const HomeView = (): JSX.Element => {
             onClick={() => engine.start()}
             disabled={gameState === "running" || gameState === "ended"}
           >
-            {t("views.home.actions.start")}
+            {t("views.battlefield.actions.start")}
           </Button>
         </div>
         <div className={classNames("mt-12")}>
@@ -217,7 +227,7 @@ const HomeView = (): JSX.Element => {
             onClick={() => engine.pause()}
             disabled={gameState !== "running"}
           >
-            {t("views.home.actions.pause")}
+            {t("views.battlefield.actions.pause")}
           </Button>
         </div>
         <div className={classNames("mt-12")}>
@@ -226,12 +236,12 @@ const HomeView = (): JSX.Element => {
             onClick={() => engine.step()}
             disabled={gameState === "running" || gameState === "ended"}
           >
-            {t("views.home.actions.step")}
+            {t("views.battlefield.actions.step")}
           </Button>
         </div>
         <div className={classNames("mt-12")}>
           <Button className="w-100" onClick={() => engine.reset()}>
-            {t("views.home.actions.restart")}
+            {t("views.battlefield.actions.restart")}
           </Button>
         </div>
       </div>
@@ -254,7 +264,7 @@ const HomeView = (): JSX.Element => {
         />
         {/* Logs */}
         <h2 className={classNames("h5", "mt-24")}>
-          {t("views.home.log.title")}
+          {t("views.battlefield.log.title")}
         </h2>
         <div className={classNames(styles.body__center__logs, "mt-2")}>
           {logs.map((log) => (
@@ -275,11 +285,11 @@ const HomeView = (): JSX.Element => {
             )}
           >
             <h2 className={classNames("h2")}>
-              {t("views.home.gameOver.title")}
+              {t("views.battlefield.gameOver.title")}
             </h2>
             <p className={classNames("h6")}>
               <Trans
-                i18nKey="views.home.gameOver.winner"
+                i18nKey="views.battlefield.gameOver.winner"
                 components={{
                   1: (
                     <span
@@ -295,7 +305,7 @@ const HomeView = (): JSX.Element => {
               />
             </p>
             <p className={classNames("h6")}>
-              {t("views.home.gameOver.score", {
+              {t("views.battlefield.gameOver.score", {
                 score: winner[1],
               })}
             </p>
@@ -303,7 +313,9 @@ const HomeView = (): JSX.Element => {
         )}
       </div>
       <div className={classNames(styles.body__right, "pr-24", "pl-12")}>
-        <h3 className={classNames("h5")}>{t("views.home.scoreboard.title")}</h3>
+        <h3 className={classNames("h5")}>
+          {t("views.battlefield.scoreboard.title")}
+        </h3>
         <div className={classNames("mt-12")}>
           {scoreboard.map((state) => (
             <div
@@ -328,11 +340,11 @@ const HomeView = (): JSX.Element => {
         {totalRounds > 0 && (
           <>
             <h3 className={classNames("h5", "mt-24")}>
-              {t("views.home.scoreboard.overall")}
+              {t("views.battlefield.scoreboard.overall")}
             </h3>
             <div className={classNames("mt-6")}>
               <span>
-                {t("views.home.scoreboard.totalRounds", { totalRounds })}
+                {t("views.battlefield.scoreboard.totalRounds", { totalRounds })}
               </span>
             </div>
             <div className={classNames("mt-6")}>
@@ -351,7 +363,7 @@ const HomeView = (): JSX.Element => {
               ))}
             </div>
             <h3 className={classNames("h6", "mt-12")}>
-              {t("views.home.scoreboard.kills")}
+              {t("views.battlefield.scoreboard.kills")}
             </h3>
             <div className={classNames("mt-6")}>
               {overallKills.map(([name, kills]) => (
@@ -369,7 +381,7 @@ const HomeView = (): JSX.Element => {
               ))}
             </div>
             <h3 className={classNames("h6", "mt-12")}>
-              {t("views.home.scoreboard.destroyed")}
+              {t("views.battlefield.scoreboard.destroyed")}
             </h3>
             <div className={classNames("mt-6")}>
               {overallDestroyed.map(([name, destroyed]) => (
@@ -393,4 +405,4 @@ const HomeView = (): JSX.Element => {
   );
 };
 
-export default HomeView;
+export default BattlefieldView;

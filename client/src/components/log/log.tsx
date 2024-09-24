@@ -4,6 +4,7 @@ import { LogProps } from "./types";
 import { Trans } from "react-i18next";
 import { isCollisionLog, isDamageLog, isKillLog } from "../../client/utils";
 import { spaceshipColorClassName } from "./spaceshipColorClassName";
+import type { Log } from "../../../../spaceships";
 
 function Log({ log }: LogProps) {
   const time = log.time.replace(/^\d+.+\s/, "");
@@ -12,7 +13,7 @@ function Log({ log }: LogProps) {
     if (isDamageLog(log)) {
       return (
         <Trans
-          i18nKey="views.home.log.damage"
+          i18nKey="views.battlefield.log.damage"
           components={{
             1: <span className={classNames(spaceshipColorClassName(log.meta.who, 10))} />,
             2: <span className={classNames(spaceshipColorClassName(log.meta.whom, 10))} />,
@@ -29,7 +30,7 @@ function Log({ log }: LogProps) {
     if (isCollisionLog(log)) {
       return (
         <Trans
-          i18nKey="views.home.log.collision"
+          i18nKey="views.battlefield.log.collision"
           components={{
             1: <span className={classNames(spaceshipColorClassName(log.meta.who, 10))} />,
             2: <span className={classNames(spaceshipColorClassName(log.meta.with, 10))} />,
@@ -44,7 +45,7 @@ function Log({ log }: LogProps) {
     if (isKillLog(log)) {
       return (
         <Trans
-          i18nKey="views.home.log.killed"
+          i18nKey="views.battlefield.log.killed"
           components={{
             1: <span className={classNames(spaceshipColorClassName(log.meta.who, 10))} />,
             2: <span className={classNames(spaceshipColorClassName(log.meta.whom, 10))} />,

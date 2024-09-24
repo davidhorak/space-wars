@@ -1,5 +1,5 @@
 export const Path = {
-  Home: '/',
+  Battlefield: '/',
   PageNotFound: '*',
 } as const;
 

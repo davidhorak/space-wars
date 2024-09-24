@@ -10,6 +10,15 @@ type GameManager struct {
 	logger             Logger
 }
 
+func NewGameManager() GameManager {
+	return GameManager{
+		gameObjects:    []GameObject{},
+		spaceShips:     map[string]*Spaceship{},
+		logger:         NewLogger(),
+		destroyedShips: 0,
+	}
+}
+
 func (manager *GameManager) GameObjects() []GameObject {
 	return manager.gameObjects
 }
@@ -105,13 +114,4 @@ func (manager *GameManager) Reset() {
 
 func (manager *GameManager) Logger() Logger {
 	return manager.logger
-}
-
-func NewGameManager() GameManager {
-	return GameManager{
-		gameObjects:    []GameObject{},
-		spaceShips:     map[string]*Spaceship{},
-		logger:         NewLogger(),
-		destroyedShips: 0,
-	}
 }
