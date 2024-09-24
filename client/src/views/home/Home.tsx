@@ -81,7 +81,7 @@ const HomeView = (): JSX.Element => {
         engine.onLogsChanged(setLogs);
         engine.onScoreboardChanged(setScoreboard);
 
-        setShowColliders(true);
+        setShowColliders(false);
         setShowNames(true);
         setShowHealth(true);
         setShowEnergy(true);
