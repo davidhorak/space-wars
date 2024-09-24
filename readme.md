@@ -33,7 +33,7 @@ and claim your place among the stars!
 > Notes:
 >
 > - 1 space unit is equal to **1** meter.
-> - The actual numbers are not final and are subject to change.
+> - The actual numbers are not final and are subject to change. All configuration constants are located in [configuration.go](kernel/game/configuration.go)
 
 ### Spaceship
 
@@ -59,7 +59,8 @@ and claim your place among the stars!
 - Using the engines consumes energy, x/s for the main thruster, and y/s for the navigation thrusters.
 - The maximum speed is **192** m/s.
 - The spaceship will reach the max speed in **5** seconds with full throttle.
-- The spaceship will come to a stop in **10** seconds without any thrust, caused by drag.
+- The spaceship will come close to a stop in **10** seconds without any thrust, caused by drag.
+- The objects going over the screen wrap around to the other side.
 
 https://github.com/user-attachments/assets/84e4e892-7ec1-4950-a1c2-72afd8f28de1
 
@@ -82,7 +83,7 @@ https://github.com/user-attachments/assets/84e4e892-7ec1-4950-a1c2-72afd8f28de1
 - Each ship has **10** rockets.
 - Rocket has **1** second reload time.
 
-#### Collisions
+### Collisions
 
 - Any object colliding with an asteroid is destroyed.
 - A spaceship colliding with an opponent destroys both spaceships.
@@ -106,6 +107,19 @@ https://github.com/user-attachments/assets/84e4e892-7ec1-4950-a1c2-72afd8f28de1
 - Hitting an opponent with a rocket scores **30** points.
 - Hitting an opponent with a laser scores **10** points.
 - Killing an opponent scores **100** points.
+
+### Random Seed
+- The seed is a 64-bit integer.
+- The seed is used to generate the same map layout for the same seed.
+- Seed could be provided via URL parameters `seed`, e.g. `localhost:3000/?seed=1234567890`
+
+### Battlefield Size
+- The width and height of the battlefield are set to **1024** (width) by **768** (height) meters.
+- The width and height could be overridden via URL parameters `width` and `height`, e.g. `localhost:3000/?width=1200&height=800`
+
+### FPS
+- The FPS is set to **30**.
+- The FPS could be overridden via URL parameters `fps`, e.g. `localhost:3000/?fps=60`
 
 ---
 
