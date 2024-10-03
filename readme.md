@@ -171,6 +171,7 @@ powershell -Command { $env:GOOS="js"; $env:GOARCH="wasm"; go build -o ./client/p
 
 ### TODO
 
+- [x] Add CI
 - [ ] Test the game and balance the game, mainly the truster physics
 - [ ] Add all kernel tests
 - [ ] Optimize the performance of the game
