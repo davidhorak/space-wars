@@ -6,54 +6,54 @@ import (
 
 	"github.com/davidhorak/space-wars/kernel/physics"
 	"github.com/davidhorak/space-wars/kernel/utils"
+	"github.com/stretchr/testify/assert"
 )
+
+func TestSquareCollider_Enabled(t *testing.T) {
+	square := NewSquareCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Size{Width: 2, Height: 2})
+	assert.True(t, square.Enabled())
+}
+
+func TestSquareCollider_SetEnabled(t *testing.T) {
+	square := NewSquareCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Size{Width: 2, Height: 2})
+	square.SetEnabled(false)
+	assert.False(t, square.Enabled())
+}
 
 func TestSquareCollider_Position(t *testing.T) {
 	square := NewSquareCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Size{Width: 2, Height: 2})
 	expected := physics.Vector2{X: 0, Y: 0}
-	if square.Position() != expected {
-		t.Errorf("Expected position to be %v, but got %v", expected, square.Position())
-	}
+	assert.Equal(t, expected, square.Position())
 }
 
 func TestSquareCollider_SetPosition(t *testing.T) {
 	square := NewSquareCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Size{Width: 2, Height: 2})
 	square.SetPosition(physics.Vector2{X: 1, Y: 1})
 	expected := physics.Vector2{X: 1, Y: 1}
-	if square.Position() != expected {
-		t.Errorf("Expected position to be %v, but got %v", expected, square.Position())
-	}
+	assert.Equal(t, expected, square.Position())
 }
 
 func TestSquareCollider_Rotation(t *testing.T) {
-	square := NewSquareCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Size{Width: 2, Height: 2})
-	if square.Rotation() != 0 {
-		t.Errorf("Expected rotation to be %v, but got %v", 0, square.Rotation())
-	}
+	square := NewSquareCollider(physics.Vector2{X: 0, Y: 0}, math.Pi/4, physics.Size{Width: 2, Height: 2})
+	assert.Equal(t, math.Pi/4, square.Rotation())
 }
 
 func TestSquareCollider_SetRotation(t *testing.T) {
 	square := NewSquareCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Size{Width: 2, Height: 2})
 	square.SetRotation(math.Pi / 2)
-	if square.Rotation() != math.Pi/2 {
-		t.Errorf("Expected rotation to be %v, but got %v", math.Pi/2, square.Rotation())
-	}
+	assert.Equal(t, math.Pi/2, square.Rotation())
 }
 
-// func TestSquareCollider_Size(t *testing.T) {
-// 	square := NewSquareCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Size{Width: 2, Height: 2})
-// 	if square.Size() != physics.Size{Width: 2, Height: 2} {
-// 		t.Errorf("Expected size to be %v, but got %v", physics.Size{Width: 2, Height: 2}, square.Size())
-// 	}
-// }
+func TestSquareCollider_Size(t *testing.T) {
+	square := NewSquareCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Size{Width: 2, Height: 2})
+	assert.Equal(t, physics.Size{Width: 2, Height: 2}, square.Size())
+}
 
-// func TestSquareCollider_SetSize(t *testing.T) {
-// 	square := NewSquareCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Size{Width: 2, Height: 2})
-// 	square.SetSize(physics.Size{Width: 3, Height: 3})
-// 	if square.Size() != physics.Size{Width: 3, Height: 3} {
-// 		t.Errorf("Expected size to be %v, but got %v", physics.Size{Width: 3, Height: 3}, square.Size())
-// 	}
-// }
+func TestSquareCollider_SetSize(t *testing.T) {
+	square := NewSquareCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Size{Width: 2, Height: 2})
+	square.SetSize(physics.Size{Width: 3, Height: 3})
+	assert.Equal(t, physics.Size{Width: 3, Height: 3}, square.Size())
+}
 
 func TestSquareCollider_IsRotated(t *testing.T) {
 	var tests = []struct {
@@ -76,10 +76,7 @@ func TestSquareCollider_IsRotated(t *testing.T) {
 			rotation: test.rotation,
 			size:     physics.Size{Width: 6, Height: 4},
 		}
-		result := square.IsRotated()
-		if result != test.expected {
-			t.Errorf("Expected IsRotated to be %v, but got %v", test.expected, result)
-		}
+		assert.Equal(t, test.expected, square.IsRotated())
 	}
 }
 
@@ -191,9 +188,7 @@ func TestSquareCollider_Polygon(t *testing.T) {
 	for _, test := range tests {
 		polygon := test.square.Polygon()
 
-		if len(polygon.Vertices) != 4 {
-			t.Errorf("Expected 4 corners, got %d", len(polygon.Vertices))
-		}
+		assert.Equal(t, 4, len(polygon.Vertices))
 
 		for i, vertex := range polygon.Vertices {
 			if !utils.AlmostEqual(vertex.X, test.expected[i].X) || !utils.AlmostEqual(vertex.Y, test.expected[i].Y) {
@@ -201,6 +196,28 @@ func TestSquareCollider_Polygon(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestSquareCollider_Serialize(t *testing.T) {
+	square_collider := NewSquareCollider(
+		physics.Vector2{X: 5, Y: 10},
+		math.Pi/4,
+		physics.Size{Width: 2, Height: 2},
+	)
+
+	assert.Equal(t, map[string]interface{}{
+		"type":    "square",
+		"enabled": true,
+		"position": map[string]interface{}{
+			"x": 5.0,
+			"y": 10.0,
+		},
+		"rotation": math.Pi / 4,
+		"size": map[string]interface{}{
+			"width":  2.0,
+			"height": 2.0,
+		},
+	}, square_collider.Serialize())
 }
 
 func TestSquareCollider_CollidesWithSquare(t *testing.T) {
@@ -298,10 +315,7 @@ func TestSquareCollider_CollidesWithSquare(t *testing.T) {
 
 	for _, test := range tests {
 		result := test.square1.CollidesWith(&test.square2)
-		if result != test.expected {
-			t.Logf("Test case: %s", test.description)
-			t.Errorf("Expected CollidesWith to be %v, but got %v", test.expected, result)
-		}
+		assert.Equal(t, test.expected, result)
 	}
 }
 
@@ -381,10 +395,7 @@ func TestSquareCollider_CollidesWithCircle(t *testing.T) {
 
 	for _, test := range tests {
 		result := test.square.CollidesWith(&test.circle)
-		if result != test.expected {
-			t.Logf("Test case: %s", test.description)
-			t.Errorf("Expected CollidesWith to be %v, but got %v", test.expected, result)
-		}
+		assert.Equal(t, test.expected, result)
 	}
 }
 
@@ -420,9 +431,19 @@ func TestSquareCollider_CollidesWithPolygon(t *testing.T) {
 
 	for _, test := range tests {
 		result := test.square.CollidesWith(&test.polygon)
-		if result != test.expected {
-			t.Logf("Test case: %s", test.description)
-			t.Errorf("Expected CollidesWith to be %v, but got %v", test.expected, result)
-		}
+		assert.Equal(t, test.expected, result)
 	}
+}
+
+func TestSquareCollider_CollidesWithOther(t *testing.T) {
+	collider_mocked := new(MockCollider)
+
+	square := NewSquareCollider(
+		physics.Vector2{X: 0, Y: 0},
+		0,
+		physics.Size{Width: 2, Height: 2},
+	)
+
+	result := square.CollidesWith(collider_mocked)
+	assert.False(t, result)
 }
