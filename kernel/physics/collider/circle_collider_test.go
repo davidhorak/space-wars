@@ -4,31 +4,50 @@ import (
 	"testing"
 
 	"github.com/davidhorak/space-wars/kernel/physics"
+	"github.com/stretchr/testify/assert"
 )
 
+func TestCircleCollider_Enabled(t *testing.T) {
+	circle_collider := NewCircleCollider(physics.Vector2{X: 0, Y: 0}, 1)
+	assert.True(t, circle_collider.Enabled())
+}
+
+func TestCircleCollider_SetEnabled(t *testing.T) {
+	circle_collider := NewCircleCollider(physics.Vector2{X: 0, Y: 0}, 1)
+	circle_collider.SetEnabled(false)
+	assert.False(t, circle_collider.Enabled())
+}
+
 func TestCircleCollider_Position(t *testing.T) {
-	circle := NewCircleCollider(physics.Vector2{X: 0, Y: 0}, 1)
+	circle_collider := NewCircleCollider(physics.Vector2{X: 0, Y: 0}, 1)
 	expected := physics.Vector2{X: 0, Y: 0}
-	if circle.Position() != expected {
-		t.Errorf("Expected position to be %v, but got %v", expected, circle.Position())
-	}
+	assert.Equal(t, expected, circle_collider.Position())
+}
+
+func TestCircleCollider_SetRotation(t *testing.T) {
+	circle_collider := NewCircleCollider(physics.Vector2{X: 0, Y: 0}, 1)
+	circle_collider.SetPosition(physics.Vector2{X: 1, Y: 1})
+	expected := physics.Vector2{X: 1, Y: 1}
+	assert.Equal(t, expected, circle_collider.Position())
 }
 
 func TestCircleCollider_SetPosition(t *testing.T) {
-	circle := NewCircleCollider(physics.Vector2{X: 0, Y: 0}, 1)
-	circle.SetPosition(physics.Vector2{X: 1, Y: 1})
+	circle_collider := NewCircleCollider(physics.Vector2{X: 0, Y: 0}, 1)
+	circle_collider.SetPosition(physics.Vector2{X: 1, Y: 1})
 	expected := physics.Vector2{X: 1, Y: 1}
-	if circle.Position() != expected {
-		t.Errorf("Expected position to be %v, but got %v", expected, circle.Position())
-	}
+	assert.Equal(t, expected, circle_collider.Position())
+}
+
+func TestCircleCollider_Rotation(t *testing.T) {
+	circle_collider := NewCircleCollider(physics.Vector2{X: 0, Y: 0}, 1)
+	expected := 0.0
+	assert.Equal(t, expected, circle_collider.Rotation())
 }
 
 func TestCircleCollider_Radius(t *testing.T) {
-	circle := NewCircleCollider(physics.Vector2{X: 0, Y: 0}, 1)
+	circle_collider := NewCircleCollider(physics.Vector2{X: 0, Y: 0}, 1)
 	expected := 1.0
-	if circle.Radius() != expected {
-		t.Errorf("Expected radius to be %v, but got %v", expected, circle.Radius())
-	}
+	assert.Equal(t, expected, circle_collider.Radius())
 }
 
 func TestCircleCollider_CollidesWithSquare(t *testing.T) {
@@ -107,10 +126,7 @@ func TestCircleCollider_CollidesWithSquare(t *testing.T) {
 
 	for _, test := range tests {
 		result := test.circle.CollidesWith(&test.square)
-		if result != test.expected {
-			t.Logf("Test case: %s", test.description)
-			t.Errorf("Expected CollidesWith to be %v, but got %v", test.expected, result)
-		}
+		assert.Equal(t, test.expected, result)
 	}
 }
 
@@ -150,9 +166,7 @@ func TestCircleCollider_CollidesWithCircle(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			result := test.circle1.CollidesWith(&test.circle2)
-			if result != test.expected {
-				t.Errorf("Expected %v, but got %v", test.expected, result)
-			}
+			assert.Equal(t, test.expected, result)
 		})
 	}
 }
@@ -240,9 +254,32 @@ func TestCircleCollider_CollidesWithPolygon(t *testing.T) {
 
 	for _, test := range tests {
 		result := test.circle.CollidesWith(&test.polygon)
-		if result != test.expected {
-			t.Logf("Test case: %s", test.description)
-			t.Errorf("Expected CollidesWith to be %v, but got %v", test.expected, result)
-		}
+		assert.Equal(t, test.expected, result)
 	}
+}
+
+func TestCircleCollider_CollidesWithOther(t *testing.T) {
+	collider_mocked := new(MockCollider)
+
+	circle_collider := NewCircleCollider(
+		physics.Vector2{X: 0, Y: 0},
+		1,
+	)
+
+	result := circle_collider.CollidesWith(collider_mocked)
+	assert.False(t, result)
+}
+
+func TestCircleCollider_Serialize(t *testing.T) {
+	circle_collider := NewCircleCollider(physics.Vector2{X: 5, Y: 10}, 1)
+
+	assert.Equal(t, map[string]interface{}{
+		"type":    "circle",
+		"enabled": true,
+		"position": map[string]interface{}{
+			"x": 5.0,
+			"y": 10.0,
+		},
+		"radius": 1.0,
+	}, circle_collider.Serialize())
 }
