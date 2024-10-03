@@ -25,3 +25,7 @@ dist-ssr
 
 # Wasm
 *.wasm
+
+# Tests
+coverage.out
+coverage.html
