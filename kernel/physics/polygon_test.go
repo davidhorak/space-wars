@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/davidhorak/space-wars/kernel/utils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPolygon_Rotate(t *testing.T) {
@@ -149,14 +150,8 @@ func TestPolygon_Intersects(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		if test.description != "45 degrees rotated polygon" {
-			continue
-		}
 		got := test.polygon.Intersects(test.other)
-		if got != test.expected {
-			t.Logf("Test case: %s", test.description)
-			t.Errorf("Polygon.Intersects(%v, %v) = %t, expected %t", test.polygon, test.other, got, test.expected)
-		}
+		assert.Equal(t, test.expected, got)
 	}
 }
 
@@ -185,6 +180,13 @@ func TestPolygon_Contains(t *testing.T) {
 		point       Vector2
 		expected    bool
 	}{
+		// Invalid polygons
+		{
+			description: "Polygon with less than 3 vertices",
+			polygon:     Polygon{Vertices: []Vector2{{X: 0, Y: 0}}},
+			point:       Vector2{X: 0, Y: 0},
+			expected:    false,
+		},
 		// Square
 		{
 			description: "Point inside the polygon #1",
@@ -363,10 +365,7 @@ func TestPolygon_Contains(t *testing.T) {
 
 	for _, test := range tests {
 		got := test.polygon.Contains(test.point)
-		if got != test.expected {
-			t.Logf("Test case: %s", test.description)
-			t.Errorf("RayCasting.Contains(%v, %v) = %t, expected %t", test.point, test.polygon, got, test.expected)
-		}
+		assert.Equal(t, test.expected, got)
 	}
 }
 
@@ -386,10 +385,12 @@ func TestPolygon_Edges(t *testing.T) {
 	}
 
 	for i, edge := range polygon.Edges() {
-		if edge != expectedEdges[i] {
-			t.Errorf("Edge %d: expected %v, got %v", i, expectedEdges[i], edge)
-		}
+		assert.Equal(t, expectedEdges[i], edge)
 	}
+
+	// Cache edges
+	polygon.Edges()
+	assert.Equal(t, expectedEdges, polygon.edges)
 }
 
 func TestPolygon_Bounds(t *testing.T) {
@@ -401,7 +402,15 @@ func TestPolygon_Bounds(t *testing.T) {
 	}}
 
 	minX, minY, maxX, maxY := polygon.Bounds()
-	if minX != -1 || minY != -1 || maxX != 1 || maxY != 1 {
-		t.Errorf("Bounds = %f, %f, %f, %f, expected -1, -1, 1, 1", minX, minY, maxX, maxY)
-	}
+	assert.Equal(t, -1.0, minX)
+	assert.Equal(t, -1.0, minY)
+	assert.Equal(t, 1.0, maxX)
+	assert.Equal(t, 1.0, maxY)
+
+	// Cached bounds
+	polygon.Bounds()
+	assert.Equal(t, -1.0, polygon.minX)
+	assert.Equal(t, -1.0, polygon.minY)
+	assert.Equal(t, 1.0, polygon.maxX)
+	assert.Equal(t, 1.0, polygon.maxY)
 }
