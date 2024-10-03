@@ -21,7 +21,7 @@ export type SpaceshipManagerFactory = () => Promise<SpaceshipManager>;
 export interface SpaceshipManager {
   name: string;
   onUpdate(state: SpaceState): SpaceshipAction[];
-  onStart(): void;
+  onStart(width: number, height: number): void;
   onReset(): void;
 }
 ```
@@ -37,7 +37,10 @@ This function is called every game tick, contains the current game state and exp
 - **gameObjects**: The game objects, contains all the game objects in the game. This includes asteroids, other spaceships, and any other objects that can interact with your spaceship.
 
 #### onStart
-This function is called when the game starts, it can be used to initialize any resources needed by the spaceship. This is a good place to set up any initial conditions or configurations for your spaceship.
+This function is called when the game starts, it can be used to initialize any resources needed by the spaceship. This is a good place to set up any initial conditions or configurations for your spaceship. 
+
+- **width**: The width of the game area.
+- **height**: The height of the game area.
 
 #### onReset
 This function is called when the game resets, it can be used to reset any resources needed by the spaceship. This is useful for restarting the game or resetting the spaceship to its initial state.

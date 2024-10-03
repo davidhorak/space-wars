@@ -76,7 +76,7 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
 
   const start = () => {
     spaceWars.start();
-    spaceships.forEach((spaceship) => spaceship.onStart());
+    spaceships.forEach((spaceship) => spaceship.onStart(width, height));
     gameState = spaceWars.state();
     onStateChanged.broadcast("running");
     onLogsChanged.broadcast([]);
