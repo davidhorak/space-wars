@@ -189,7 +189,7 @@ powershell -Command { go test -coverprofile="coverage.out" ./...; go tool cover 
 
 - [x] Add CI
 - [ ] Test the game and balance the game, mainly the truster physics
-- [ ] Add all kernel tests
+- [x] Add all kernel tests
 - [ ] Optimize the performance of the game
 - [ ] Polish the game tiles
 - [ ] Allow to load the game state form a json string
