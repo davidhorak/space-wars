@@ -3,6 +3,8 @@
 Players take on the role of elite engineers tasked with programming AI bots to pilot
 futuristic spaceships in a high-stakes interstellar arena.
 
+[![CI](https://github.com/davidhorak/space-wars/actions/workflows/ci.yml/badge.svg)](https://github.com/davidhorak/space-wars/actions/workflows/ci.yml)
+
 **The goal is simple**: code your bot to outmaneuver, outgun, and outsmart the competition,
 becoming the last ship standing in a relentless battle for supremacy.
 
