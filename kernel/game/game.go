@@ -41,7 +41,7 @@ func NewGame(size physics.Size, seed int64) *Game {
 		manager: NewGameManager(),
 	}
 
-	asteroids := SeedAsteroids(rand.New(rand.NewSource(seed)), game.size.Width, game.size.Height)
+	asteroids := SeedAsteroids(rand.New(rand.NewSource(seed)), game.size.Width, game.size.Height, 1000)
 	game.manager.AddGameObjects(asteroids)
 
 	return &game

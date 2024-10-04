@@ -3,16 +3,15 @@ package game
 import (
 	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSeedAsteroids(t *testing.T) {
-	random := rand.New(rand.NewSource(time.Now().UnixNano()))
+	random := rand.New(rand.NewSource(1))
 	width, height := 1000.0, 1000.0
 
-	asteroids := SeedAsteroids(random, width, height)
+	asteroids := SeedAsteroids(random, width, height, 1000)
 
 	assert.GreaterOrEqual(t, len(asteroids), MinAsteroids)
 	assert.LessOrEqual(t, len(asteroids), MaxAsteroids)
@@ -47,4 +46,14 @@ func TestSeedAsteroids(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestSeedAsteroids_Regenerate(t *testing.T) {
+	random := rand.New(rand.NewSource(1))
+	width, height := 100.0, 100.0
+
+	asteroids := SeedAsteroids(random, width, height, 100)
+
+	assert.GreaterOrEqual(t, len(asteroids), MinAsteroids)
+	assert.LessOrEqual(t, len(asteroids), MaxAsteroids)
 }
