@@ -70,6 +70,11 @@ func TestGame_Start(t *testing.T) {
 	game.Start()
 	assert.Equal(t, Running, game.Status())
 	assert.Equal(t, "Game state changed to: running", game.manager.Logger().Logs()[0].message)
+
+	// Start again while running
+	game.Start()
+	assert.Equal(t, Running, game.Status())
+	assert.Equal(t, 1, len(game.manager.Logger().Logs()))
 }
 
 func TestGame_Pause(t *testing.T) {
@@ -82,6 +87,10 @@ func TestGame_Pause(t *testing.T) {
 	game.Pause()
 	assert.Equal(t, Paused, game.Status())
 	assert.Equal(t, "Game state changed to: paused", game.manager.Logger().Logs()[1].message)
+
+	// Pause while not running
+	game.Pause()
+	assert.Equal(t, 2, len(game.manager.Logger().Logs()))
 }
 
 func TestGame_Reset(t *testing.T) {
@@ -179,6 +188,12 @@ func TestGame_SpaceshipAction(t *testing.T) {
 	spaceship, err := game.manager.GetSpaceship("test")
 	assert.NoError(t, err)
 	assert.Equal(t, physics.Vector2{X: 200, Y: 200}, spaceship.position)
+
+	// Spaceship not found
+	err = game.SpaceshipAction("test1", func(spaceShip *Spaceship, gameManager *GameManager) {
+		spaceShip.position = physics.Vector2{X: 200, Y: 200}
+	})
+	assert.Error(t, err)
 }
 
 func TestGame_AddSpaceship(t *testing.T) {
@@ -204,12 +219,13 @@ func TestGame_RemoveSpaceship(t *testing.T) {
 func TestGame_Serialize(t *testing.T) {
 	game := NewGame(physics.Size{Width: 1024, Height: 768}, 1234567890)
 	game.AddSpaceship("test", physics.Vector2{X: 100, Y: 100}, 0)
+	game.Start()
 
 	serialized := game.Serialize()
-	assert.Equal(t, "initialized", serialized["status"])
+	assert.Equal(t, "running", serialized["status"])
 	assert.Equal(t, int64(1234567890), serialized["seed"])
 	assert.Equal(t, 1024.0, serialized["size"].(map[string]interface{})["width"])
 	assert.Equal(t, 768.0, serialized["size"].(map[string]interface{})["height"])
 	assert.GreaterOrEqual(t, len(serialized["gameObjects"].([]interface{})), MinAsteroids)
-	assert.Equal(t, 0, len(serialized["logs"].([]interface{})))
+	assert.Equal(t, 1, len(serialized["logs"].([]interface{})))
 }
