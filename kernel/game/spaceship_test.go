@@ -114,6 +114,22 @@ func TestSpaceship_SetStartRotation(t *testing.T) {
 	assert.Equal(t, newRotation, ship.startRotation)
 }
 
+func TestSpaceship_Update(t *testing.T) {
+	gameManager := NewGameManager()
+	ship := NewSpaceship(0, "ship", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
+	ship.SetEngineThrust(100, 0, 0)
+	assert.Equal(t, 100.0, ship.engine.mainThrust)
+
+	// When energy is depleted, thrust should be set to 0
+	ship.Update(100, &gameManager)
+	ship.Update((MaxEnergy/EnergyConsumptionMainThrustSec*1000)+1000, &gameManager)
+
+	assert.Equal(t, 0.0, ship.energy)
+	assert.Equal(t, 0.0, ship.engine.mainThrust)
+	assert.Equal(t, 0.0, ship.engine.leftThrust)
+	assert.Equal(t, 0.0, ship.engine.rightThrust)
+}
+
 func TestSpaceship_SetEngineThrust(t *testing.T) {
 	ship := NewSpaceship(0, "ship", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
 	ship.SetEngineThrust(100, 50, 33)
@@ -205,6 +221,54 @@ func TestSpaceship_FireRocket(t *testing.T) {
 	ship.rockets = 0
 	err = ship.FireRocket(&gameManager)
 	assert.Contains(t, "not enough rockets", err.Error())
+}
+
+func TestSpaceship_HasKilled(t *testing.T) {
+	ship := NewSpaceship(0, "ship", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
+	other := NewSpaceship(1, "other", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
+
+	assert.Equal(t, int32(0), ship.kills)
+	assert.Equal(t, float64(0), ship.score)
+
+	ship.HasKilled(other)
+
+	assert.Equal(t, int32(1), ship.kills)
+	assert.Equal(t, 100.0, ship.score)
+}
+
+func TestSpaceship_TakeDamage(t *testing.T) {
+	gameManager := NewGameManager()
+	ship := NewSpaceship(0, "ship", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
+	other := NewSpaceship(1, "other", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
+
+	ship.TakeDamage(10, &gameManager, other)
+
+	assert.Equal(t, float64(90), ship.health)
+
+	ship.TakeDamage(100, &gameManager, other)
+
+	assert.Equal(t, 0.0, ship.health)
+	assert.Equal(t, int32(1), other.kills)
+	assert.Equal(t, float64(100), other.score)
+}
+
+func TestSpaceship_OnCollision(t *testing.T) {
+	gameManager := NewGameManager()
+	ship := NewSpaceship(0, "ship", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
+	other := NewSpaceship(1, "other", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
+
+	ship.OnCollision(other, &gameManager, 0)
+	other.OnCollision(ship, &gameManager, 0)
+
+	assert.Equal(t, 0.0, ship.health)
+	assert.Equal(t, 0.0, other.health)
+
+	// Unexpected object
+	ship = NewSpaceship(0, "ship", physics.Vector2{X: 0, Y: 0}, math.Pi/2)
+	explosion := NewExplosion(0, physics.Vector2{X: 0, Y: 0}, 10, 1)
+	ship.OnCollision(explosion, &gameManager, 0)
+
+	assert.Equal(t, 100.0, ship.health)
 }
 
 func TestSpaceship_Move_Basic(t *testing.T) {
