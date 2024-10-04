@@ -6,3 +6,7 @@ func NewUUID() int64 {
 	uuid++
 	return uuid
 }
+
+func ResetUUID() {
+	uuid = 0
+}

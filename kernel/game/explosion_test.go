@@ -18,9 +18,15 @@ func TestNewExplosion(t *testing.T) {
 	assert.Equal(t, 2.0, explosion.lifespanSec)
 }
 
-func TestExplosion_SetEnabled(t *testing.T) {
+func TestExplosion_Enabled(t *testing.T) {
 	explosion := NewExplosion(1, physics.Vector2{X: 0, Y: 0}, 5, 2)
 	assert.True(t, explosion.Enabled())
+}
+
+func TestExplosion_SetEnabled(t *testing.T) {
+	explosion := NewExplosion(1, physics.Vector2{X: 0, Y: 0}, 5, 2)
+	explosion.SetEnabled(false)
+	assert.False(t, explosion.Enabled())
 }
 
 func TestExplosion_SetPosition(t *testing.T) {
@@ -43,6 +49,12 @@ func TestExplosionUpdate(t *testing.T) {
 	explosion.Update(1600, &gameManager)
 	assert.Equal(t, 0.0, explosion.lifespanSec)
 	assert.False(t, explosion.Enabled())
+}
+
+func TestExplosion_Collider(t *testing.T) {
+	explosion := NewExplosion(1, physics.Vector2{X: 0, Y: 0}, 5, 2)
+
+	assert.Nil(t, explosion.Collider())
 }
 
 func TestExplosionSerialize(t *testing.T) {

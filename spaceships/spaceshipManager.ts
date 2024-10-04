@@ -10,7 +10,7 @@ export type SpaceState = {
 export interface SpaceshipManager {
   name: string;
   onUpdate(state: SpaceState): SpaceshipAction[];
-  onStart(): void;
+  onStart(width: number, height: number): void;
   onReset(): void;
 }
 

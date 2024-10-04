@@ -163,6 +163,22 @@ Windows:
 powershell -Command { $env:GOOS="js"; $env:GOARCH="wasm"; go build -o ./client/public/space-wars.wasm }
 ```
 
+### How to run the kernel tests with full coverage
+
+Linux/MacOS:
+
+```sh
+cd kernel
+go test -coverprofile="coverage.out" ./... && go tool cover -html="coverage.out" -o coverage.html
+```
+
+Windows:
+
+```powershell
+cd kernel
+powershell -Command { go test -coverprofile="coverage.out" ./...; go tool cover -html="coverage.out" -o coverage.html }
+```
+
 ### How to Run the Game
 
 - Go to [client](client) and run `yarn dev` to start the frontend.
@@ -171,8 +187,9 @@ powershell -Command { $env:GOOS="js"; $env:GOARCH="wasm"; go build -o ./client/p
 
 ### TODO
 
+- [x] Add CI
 - [ ] Test the game and balance the game, mainly the truster physics
-- [ ] Add all kernel tests
+- [x] Add all kernel tests
 - [ ] Optimize the performance of the game
 - [ ] Polish the game tiles
 - [ ] Allow to load the game state form a json string

@@ -6,10 +6,9 @@ import (
 	"github.com/davidhorak/space-wars/kernel/physics"
 )
 
-func SeedAsteroids(random *rand.Rand, width, height float64) []GameObject {
+func SeedAsteroids(random *rand.Rand, width, height float64, maxAttempts int) []GameObject {
 	asteroids := make([]GameObject, 0)
 	count := random.Intn(MaxAsteroids-MinAsteroids) + MinAsteroids
-	maxAttempts := 1000
 	for i := 0; i <= count && maxAttempts > 0; i++ {
 		maxAttempts--
 		radius := random.Float64()*(MaxAsteroidSize-MinAsteroidSize) + MinAsteroidSize

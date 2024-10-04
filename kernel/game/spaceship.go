@@ -202,6 +202,7 @@ func (ship *Spaceship) OnCollision(other GameObject, gameManager *GameManager, o
 
 func (ship *Spaceship) TakeDamage(damage float64, gameManager *GameManager, damageDealer *Spaceship) {
 	ship.health -= damage
+	ship.health = math.Max(ship.health, 0)
 	if ship.health <= 0 {
 		ship.destroy(gameManager)
 		if damageDealer != nil {

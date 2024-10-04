@@ -6,38 +6,42 @@ import (
 
 	"github.com/davidhorak/space-wars/kernel/physics"
 	"github.com/davidhorak/space-wars/kernel/utils"
+	"github.com/stretchr/testify/assert"
 )
+
+func TestPolygonCollider_Enabled(t *testing.T) {
+	polygon := NewPolygonCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Polygon{Vertices: []physics.Vector2{{X: -1, Y: -1}, {X: 1, Y: -1}, {X: 1, Y: 1}, {X: -1, Y: 1}}})
+	assert.True(t, polygon.Enabled())
+}
+
+func TestPolygonCollider_SetEnabled(t *testing.T) {
+	polygon := NewPolygonCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Polygon{Vertices: []physics.Vector2{{X: -1, Y: -1}, {X: 1, Y: -1}, {X: 1, Y: 1}, {X: -1, Y: 1}}})
+	polygon.SetEnabled(false)
+	assert.False(t, polygon.Enabled())
+}
 
 func TestPolygonCollider_Position(t *testing.T) {
 	polygon := NewPolygonCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Polygon{Vertices: []physics.Vector2{{X: -1, Y: -1}, {X: 1, Y: -1}, {X: 1, Y: 1}, {X: -1, Y: 1}}})
 	expected := physics.Vector2{X: 0, Y: 0}
-	if polygon.Position() != expected {
-		t.Errorf("Expected position to be %v, but got %v", expected, polygon.Position())
-	}
+	assert.Equal(t, expected, polygon.Position())
 }
 
 func TestPolygonCollider_SetPosition(t *testing.T) {
 	polygon := NewPolygonCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Polygon{Vertices: []physics.Vector2{{X: -1, Y: -1}, {X: 1, Y: -1}, {X: 1, Y: 1}, {X: -1, Y: 1}}})
 	polygon.SetPosition(physics.Vector2{X: 1, Y: 1})
 	expected := physics.Vector2{X: 1, Y: 1}
-	if polygon.Position() != expected {
-		t.Errorf("Expected position to be %v, but got %v", expected, polygon.Position())
-	}
+	assert.Equal(t, expected, polygon.Position())
 }
 
 func TestPolygonCollider_Rotation(t *testing.T) {
 	polygon := NewPolygonCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Polygon{Vertices: []physics.Vector2{{X: -1, Y: -1}, {X: 1, Y: -1}, {X: 1, Y: 1}, {X: -1, Y: 1}}})
-	if polygon.Rotation() != 0 {
-		t.Errorf("Expected rotation to be %v, but got %v", 0, polygon.Rotation())
-	}
+	assert.Equal(t, 0.0, polygon.Rotation())
 }
 
 func TestPolygonCollider_SetRotation(t *testing.T) {
 	polygon := NewPolygonCollider(physics.Vector2{X: 0, Y: 0}, 0, physics.Polygon{Vertices: []physics.Vector2{{X: -1, Y: -1}, {X: 1, Y: -1}, {X: 1, Y: 1}, {X: -1, Y: 1}}})
 	polygon.SetRotation(math.Pi / 2)
-	if polygon.Rotation() != math.Pi/2 {
-		t.Errorf("Expected rotation to be %v, but got %v", math.Pi/2, polygon.Rotation())
-	}
+	assert.Equal(t, math.Pi/2, polygon.Rotation())
 }
 
 func TestPolygonCollider_IsRotated(t *testing.T) {
@@ -61,9 +65,7 @@ func TestPolygonCollider_IsRotated(t *testing.T) {
 			rotation: test.rotation,
 		}
 		result := polygon.IsRotated()
-		if result != test.expected {
-			t.Errorf("Expected IsRotated to be %v, but got %v", test.expected, result)
-		}
+		assert.Equal(t, test.expected, result)
 	}
 }
 
@@ -180,11 +182,8 @@ func TestPolygonCollider_CollidesWithSquare(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := test.square.CollidesWith(&test.polygon)
-		if result != test.expected {
-			t.Logf("Test case: %s", test.description)
-			t.Errorf("Expected CollidesWith to be %v, but got %v", test.expected, result)
-		}
+		result := test.polygon.CollidesWith(&test.square)
+		assert.Equal(t, test.expected, result)
 	}
 }
 
@@ -271,10 +270,7 @@ func TestPolygonCollider_CollidesWithCircle(t *testing.T) {
 
 	for _, test := range tests {
 		result := test.polygon.CollidesWith(&test.circle)
-		if result != test.expected {
-			t.Logf("Test case: %s", test.description)
-			t.Errorf("Expected CollidesWith to be %v, but got %v", test.expected, result)
-		}
+		assert.Equal(t, test.expected, result)
 	}
 }
 
@@ -339,9 +335,65 @@ func TestPolygonCollider_CollidesWithPolygon(t *testing.T) {
 
 	for _, test := range tests {
 		result := test.polygon.CollidesWith(&test.other)
-		if result != test.expected {
-			t.Logf("Test case: %s", test.description)
-			t.Errorf("Expected CollidesWith to be %v, but got %v", test.expected, result)
-		}
+		assert.Equal(t, test.expected, result)
 	}
+}
+
+func TestPolygonCollider_CollidesWithOther(t *testing.T) {
+	collider_mocked := new(MockCollider)
+
+	polygon_collider := NewPolygonCollider(
+		physics.Vector2{X: 0, Y: 0},
+		0,
+		physics.Polygon{Vertices: []physics.Vector2{
+			{X: -1, Y: -1},
+			{X: 1, Y: -1},
+			{X: 1, Y: 1},
+			{X: -1, Y: 1},
+		}},
+	)
+
+	result := polygon_collider.CollidesWith(collider_mocked)
+	assert.False(t, result)
+}
+
+func TestPolygonCollider_Serialize(t *testing.T) {
+	polygon_collider := NewPolygonCollider(
+		physics.Vector2{X: 0, Y: 0},
+		0,
+		physics.Polygon{Vertices: []physics.Vector2{
+			{X: -1, Y: -1},
+			{X: 1, Y: -1},
+			{X: 1, Y: 1},
+			{X: -1, Y: 1},
+		}},
+	)
+
+	assert.Equal(t, map[string]interface{}{
+		"type":    "polygon",
+		"enabled": true,
+		"position": map[string]interface{}{
+			"x": 0.0,
+			"y": 0.0,
+		},
+		"rotation": 0.0,
+		"vertices": []map[string]interface{}{
+			{
+				"x": -1.0,
+				"y": -1.0,
+			},
+			{
+				"x": 1.0,
+				"y": -1.0,
+			},
+			{
+				"x": 1.0,
+				"y": 1.0,
+			},
+			{
+				"x": -1.0,
+				"y": 1.0,
+			},
+		},
+	}, polygon_collider.Serialize())
 }

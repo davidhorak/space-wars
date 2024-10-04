@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  kernel-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+
+    - name: Run kernel tests
+      run: |
+        cd kernel
+        go test ./...
+
+    - name: Build kernel WASM
+      run: |
+        cd kernel
+        GOOS=js GOARCH=wasm go build -o space-wars.wasm
+
+  client-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: |
+        cd client
+        yarn install
+
+    - name: Build client
+      run: |
+        cd client
+        yarn build

@@ -20,9 +20,15 @@ func TestNewAsteroid(t *testing.T) {
 	assert.Equal(t, radius, asteroid.radius)
 }
 
-func TestAsteroid_SetEnabled(t *testing.T) {
+func TestAsteroid_Enabled(t *testing.T) {
 	asteroid := NewAsteroid(1, physics.Vector2{X: 0, Y: 0}, 5)
 	assert.True(t, asteroid.Enabled())
+}
+
+func TestAsteroid_SetEnabled(t *testing.T) {
+	asteroid := NewAsteroid(1, physics.Vector2{X: 0, Y: 0}, 5)
+	asteroid.SetEnabled(false)
+	assert.False(t, asteroid.Enabled())
 }
 
 func TestAsteroid_SetPosition(t *testing.T) {
