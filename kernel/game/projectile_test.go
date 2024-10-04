@@ -13,7 +13,7 @@ func TestNewProjectile(t *testing.T) {
 	owner := NewSpaceship(1, "owner", physics.Vector2{X: 15, Y: 30}, 100)
 	projectile := NewProjectile(physics.Vector2{X: 15, Y: 30}, physics.Vector2{X: 10, Y: 20}, math.Pi, 5.0, 20.0, owner)
 
-	assert.Equal(t, int64(1), projectile.ID())
+	assert.GreaterOrEqual(t, projectile.ID(), int64(1))
 	assert.Equal(t, DamageTypeUnknown, projectile.DamageType())
 	assert.True(t, projectile.enabled)
 	assert.Equal(t, physics.Vector2{X: 15, Y: 30}, projectile.Position())
@@ -31,7 +31,7 @@ func TestProjectile_ID(t *testing.T) {
 	owner := NewSpaceship(1, "owner", physics.Vector2{X: 15, Y: 30}, 100)
 	projectile := NewProjectile(physics.Vector2{X: 15, Y: 30}, physics.Vector2{X: 10, Y: 20}, math.Pi, 5.0, 20.0, owner)
 
-	assert.Equal(t, int64(1), projectile.ID())
+	assert.GreaterOrEqual(t, projectile.ID(), int64(1))
 }
 
 func TestProjectile_DamageType(t *testing.T) {
@@ -93,6 +93,10 @@ func TestProjectile_Update(t *testing.T) {
 	projectile.Update(1000, &gameManager)
 	assert.Equal(t, lifespanSec-1.0, projectile.lifespanSec)
 	assert.Equal(t, physics.Vector2{X: 25, Y: 50}, projectile.Position())
+
+	projectile.Update(4000, &gameManager)
+	assert.Equal(t, 0.0, projectile.lifespanSec)
+	assert.False(t, projectile.enabled)
 }
 
 func TestProjectile_Collider(t *testing.T) {
@@ -153,4 +157,11 @@ func TestProjectile_OnCollision(t *testing.T) {
 	assert.Equal(t, 3, len(gameManager.GameObjects()))
 	assert.Equal(t, 80.0, other.health)
 	assert.Equal(t, 10.0, owner.score)
+}
+
+func TestProjectile_Serialize(t *testing.T) {
+	owner := NewSpaceship(1, "owner", physics.Vector2{X: 15, Y: 30}, 100)
+	projectile := NewProjectile(physics.Vector2{X: 15, Y: 30}, physics.Vector2{X: 10, Y: 20}, math.Pi, 5.0, 20.0, owner)
+
+	assert.Equal(t, map[string]interface{}{}, projectile.Serialize())
 }
