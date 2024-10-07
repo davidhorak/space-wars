@@ -346,6 +346,7 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
     showEnergy: (state: boolean) => (showEnergy = state),
     showHealth: (state: boolean) => (showHealth = state),
     showNames: (state: boolean) => (showNames = state),
+    state: (): GameState | undefined => gameState,
   };
 };
 

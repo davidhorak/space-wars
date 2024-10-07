@@ -194,7 +194,7 @@ powershell -Command { go test -coverprofile="coverage.out" ./...; go tool cover 
 - [x] Add all kernel tests
 - [ ] Optimize the performance of the game
 - [ ] Polish the game tiles
-- [ ] Allow to load the game state form a json string
+- [x] Allow to load the game state form a json string
 - [ ] Add a guide how to run the kernel without the UI client.
 - [ ] [Spaceships TODOs](spaceships/readme.md)
 

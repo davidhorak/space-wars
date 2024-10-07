@@ -18,6 +18,7 @@ export default {
         pause: "Pause",
         resume: "Resume",
         step: "Step",
+        saveState: "Save State",
       },
       scoreboard: {
         title: "Scoreboard:",

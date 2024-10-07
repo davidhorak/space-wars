@@ -166,6 +166,29 @@ const BattlefieldView = (): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [winner]);
 
+  const saveState = () => {
+    const state = engine.state();
+    if (!state) return; 
+
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "text/json" });
+
+    const link = document.createElement("a");
+    link.download = `space-wars-state-${Date.now()}.json`;
+    link.href = window.URL.createObjectURL(blob);
+    link.dataset.downloadurl = ["text/json", link.download, link.href].join(
+      ":"
+    );
+
+    const evt = new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    });
+
+    link.dispatchEvent(evt);
+    link.remove();
+  };
+
   return (
     <div
       className={classNames(
@@ -242,6 +265,15 @@ const BattlefieldView = (): JSX.Element => {
         <div className={classNames("mt-12")}>
           <Button className="w-100" onClick={() => engine.reset()}>
             {t("views.battlefield.actions.restart")}
+          </Button>
+        </div>
+        <div className={classNames("mt-12")}>
+          <Button
+            className="w-100"
+            onClick={saveState}
+            disabled={gameState !== "paused"}
+          >
+            {t("views.battlefield.actions.saveState")}
           </Button>
         </div>
       </div>
