@@ -38,6 +38,7 @@ func main() {
 		}
 
 		instance = game.NewGame(physics.Size{Width: width, Height: height}, seed)
+		instance.SeedAsteroids()
 	})
 	tickCb := JsFuncIn(func(args []js.Value) {
 		method := Method("tick", args)
@@ -51,6 +52,17 @@ func main() {
 	pauseGameCb := JsFunc(func() { instance.Pause() })
 	resetGameCb := JsFunc(func() { instance.Reset() })
 	gameStateCb := JsFuncOut(func() any { return instance.Serialize() })
+	fromStateCb := JsFuncIn(func(args []js.Value) {
+		method := Method("fromState", args)
+		state, err := method.StringArg(0, "state")
+		if err != nil {
+			fmt.Println(err)
+		}
+		instance, err = game.Deserialize(state)
+		if err != nil {
+			fmt.Println(err)
+		}
+	})
 	addSpaceshipCb := JsFuncIn(func(args []js.Value) {
 		method := Method("addSpaceship", args)
 
@@ -141,6 +153,7 @@ func main() {
 		"pause":        pauseGameCb,
 		"reset":        resetGameCb,
 		"state":        gameStateCb,
+		"fromState":    fromStateCb,
 		"addSpaceship": addSpaceshipCb,
 		"action":       spaceShipActionCb,
 	})
@@ -152,6 +165,7 @@ func main() {
 	pauseGameCb.Release()
 	resetGameCb.Release()
 	gameStateCb.Release()
+	fromStateCb.Release()
 	addSpaceshipCb.Release()
 	spaceShipActionCb.Release()
 }

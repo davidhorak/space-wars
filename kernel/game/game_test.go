@@ -1,6 +1,7 @@
 package game
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/davidhorak/space-wars/kernel/physics"
@@ -52,7 +53,6 @@ func TestNewGame(t *testing.T) {
 	assert.Equal(t, int64(1234567890), game.seed)
 	assert.Equal(t, Initialized, game.status)
 	assert.Equal(t, physics.Size{Width: 1024, Height: 768}, game.size)
-	assert.GreaterOrEqual(t, len(game.manager.GameObjects()), MinAsteroids)
 }
 
 func TestGame_Status(t *testing.T) {
@@ -152,6 +152,20 @@ func TestGame_Update(t *testing.T) {
 		assert.True(t, asteroid.Enabled())
 	})
 
+	t.Run("Handles collisions between objects, disabled colliding object", func(t *testing.T) {
+		game := NewGame(physics.Size{Width: 1000, Height: 1000}, 1234567890)
+		spaceship := NewSpaceship(NewUUID(), "test", physics.Vector2{X: 100, Y: 100}, 0)
+		asteroid := NewAsteroid(NewUUID(), physics.Vector2{X: 150, Y: 100}, 50)
+		asteroid.SetEnabled(false)
+		game.manager.AddGameObjects([]GameObject{spaceship, asteroid})
+
+		game.Update(100)
+
+		assert.True(t, spaceship.Enabled())
+		assert.Equal(t, float64(100), spaceship.health)
+		assert.False(t, asteroid.Enabled())
+	})
+
 	t.Run("Ignores disabled objects", func(t *testing.T) {
 		game := NewGame(physics.Size{Width: 1000, Height: 1000}, 1234567890)
 		spaceship := NewSpaceship(NewUUID(), "test", physics.Vector2{X: 100, Y: 100}, 0)
@@ -175,6 +189,13 @@ func TestGame_Update(t *testing.T) {
 		assert.Equal(t, Ended, game.Status())
 		assert.Equal(t, "Game state changed to: ended", game.manager.Logger().Logs()[1].message)
 	})
+}
+
+func TestGame_SeedAsteroids(t *testing.T) {
+	game := NewGame(physics.Size{Width: 1000, Height: 1000}, 1234567890)
+	game.SeedAsteroids()
+
+	assert.GreaterOrEqual(t, len(game.manager.GameObjects()), MinAsteroids)
 }
 
 func TestGame_SpaceshipAction(t *testing.T) {
@@ -213,11 +234,12 @@ func TestGame_RemoveSpaceship(t *testing.T) {
 	game.RemoveSpaceship("test")
 
 	gameObjects := game.manager.GameObjects()
-	assert.IsType(t, &Asteroid{}, gameObjects[len(gameObjects)-1])
+	assert.Equal(t, 0, len(gameObjects))
 }
 
 func TestGame_Serialize(t *testing.T) {
 	game := NewGame(physics.Size{Width: 1024, Height: 768}, 1234567890)
+	game.SeedAsteroids()
 	game.AddSpaceship("test", physics.Vector2{X: 100, Y: 100}, 0)
 	game.Start()
 
@@ -228,4 +250,68 @@ func TestGame_Serialize(t *testing.T) {
 	assert.Equal(t, 768.0, serialized["size"].(map[string]interface{})["height"])
 	assert.GreaterOrEqual(t, len(serialized["gameObjects"].([]interface{})), MinAsteroids)
 	assert.Equal(t, 1, len(serialized["logs"].([]interface{})))
+}
+
+func TestDeserialize_InvalidJSON(t *testing.T) {
+	_, err := Deserialize("invalid")
+	assert.Error(t, err)
+}
+
+func TestDeserialize(t *testing.T) {
+	game := NewGame(physics.Size{Width: 1024, Height: 768}, 1234567890)
+	game.SeedAsteroids()
+	game.AddSpaceship("test", physics.Vector2{X: 100, Y: 100}, 0)
+	game.Start()
+	game.SpaceshipAction("test", func(spaceShip *Spaceship, gameManager *GameManager) {
+		spaceShip.FireLaser(gameManager)
+		spaceShip.FireRocket(gameManager)
+	})
+	game.manager.Logger().AddMessage(Message{
+		id:      NewUUID(),
+		message: "test",
+		meta:    map[string]interface{}{},
+	})
+	uuid := GetUUID()
+
+	serialized := game.Serialize()
+
+	// Add invalid game object
+	serialized["gameObjects"] = append(serialized["gameObjects"].([]interface{}), map[string]interface{}{
+		"type":    "unknown",
+		"id":      0,
+		"enabled": true,
+		"position": map[string]interface{}{
+			"x": 0,
+			"y": 0,
+		},
+	})
+
+	// Add invalid logger message
+	serialized["logs"] = append(serialized["logs"].([]interface{}), map[string]interface{}{
+		"time": "invalid",
+	})
+
+	// Add invalid projectile
+	serialized["gameObjects"] = append(serialized["gameObjects"].([]interface{}), map[string]interface{}{
+		"type":    "rocket",
+		"owner":   0,
+		"id":      0,
+		"enabled": true,
+		"position": map[string]interface{}{
+			"x": 0,
+			"y": 0,
+		},
+	})
+
+	serializedJson, err := json.Marshal(serialized)
+	assert.NoError(t, err)
+	deserialized, err := Deserialize(string(serializedJson))
+	assert.NoError(t, err)
+
+	assert.Equal(t, game.seed, deserialized.seed)
+	assert.Equal(t, game.size, deserialized.size)
+	assert.Equal(t, game.status, deserialized.status)
+	assert.Equal(t, len(game.manager.GameObjects()), len(deserialized.manager.GameObjects()))
+	assert.Equal(t, len(game.manager.Logger().Logs()), len(deserialized.manager.Logger().Logs()))
+	assert.Equal(t, GetUUID(), uuid)
 }
