@@ -41,6 +41,26 @@ func TestLogger_Clear(t *testing.T) {
 	assert.Equal(t, []Message{}, logger.Logs())
 }
 
+func TestLogger_AddMessage(t *testing.T) {
+	logger := NewLogger()
+	logger.AddMessage(Message{
+		id:      1,
+		logType: LogTypeDamage,
+		time:    time.Now(),
+		message: "test",
+		meta:    map[string]interface{}{"test": "test"},
+	})
+
+	assert.Equal(t, 1, len(logger.Logs()))
+	assert.Equal(t, Message{
+		id:      1,
+		logType: LogTypeDamage,
+		time:    time.Now(),
+		message: "test",
+		meta:    map[string]interface{}{"test": "test"},
+	}, logger.Logs()[0])
+}
+
 func TestLogger_Damage(t *testing.T) {
 	now := time.Now()
 	logger := NewLogger()

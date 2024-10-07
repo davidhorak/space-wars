@@ -35,6 +35,7 @@ func (message *Message) Serialize() map[string]interface{} {
 type Logger interface {
 	Logs() []Message
 	Clear()
+	AddMessage(message Message)
 	Damage(time time.Time, damage float64, who string, by string, damageType DamageType)
 	Kill(time time.Time, who string, by string)
 	Collision(time time.Time, who string, with string)
@@ -57,6 +58,10 @@ func (logger *logger) Logs() []Message {
 
 func (logger *logger) Clear() {
 	logger.messages = []Message{}
+}
+
+func (logger *logger) AddMessage(message Message) {
+	logger.messages = append(logger.messages, message)
 }
 
 func (logger *logger) Damage(time time.Time, damage float64, who string, whom string, damageType DamageType) {
