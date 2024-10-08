@@ -11,6 +11,9 @@
   --color-disabled-bg: #666666;
   --color-disabled-fg: #999999;
 
+  --color-link: var(--color-primary);
+  --color-link-hover: #b39d0f;
+
   --color-palette-0: hsl(56, 100%, 80%);
   --color-palette-1: hsl(27, 100%, 80%);
   --color-palette-2: hsl(356, 88%, 80%);

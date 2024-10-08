@@ -168,9 +168,11 @@ const BattlefieldView = (): JSX.Element => {
 
   const saveState = () => {
     const state = engine.state();
-    if (!state) return; 
+    if (!state) return;
 
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "text/json" });
+    const blob = new Blob([JSON.stringify(state, null, 2)], {
+      type: "text/json",
+    });
 
     const link = document.createElement("a");
     link.download = `space-wars-state-${Date.now()}.json`;
