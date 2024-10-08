@@ -92,5 +92,7 @@ const names = [
   "Deathwatch",
 ];
 
+let index = -1;
+
 export const createDummy = (): SpaceshipManagerFactory => () =>
-  Promise.resolve(dummy(names[Math.floor(Math.random() * names.length)]));
+  Promise.resolve(dummy(names[++index]));
