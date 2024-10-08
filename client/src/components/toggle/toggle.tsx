@@ -2,7 +2,7 @@ import classNames from "classnames";
 import { ToggleProps } from "./types";
 import style from "./toggle.module.css";
 
-const Toggle = ({ checked, className, onChange }: ToggleProps) => {
+const Toggle = ({ checked, className, disabled = false, onChange }: ToggleProps) => {
   return (
     <label
       className={classNames(
@@ -10,12 +10,14 @@ const Toggle = ({ checked, className, onChange }: ToggleProps) => {
         className,
         "d-inline-block",
         "position-relative",
+        { [style["toggle--disabled"]]: disabled }
       )}
     >
       <input
         type="checkbox"
         checked={checked}
         onChange={() => onChange(!checked)}
+        disabled={disabled}
       />
       <span
         className={classNames(
