@@ -20,6 +20,15 @@ export default {
         step: "Step",
         saveState: "Save State",
       },
+      load: {
+        title: "Load State:",
+        drop: "Drop JSON file here.",
+        processing: "Processing, please wait",
+        select: {
+          label: "Choose JSON file",
+          title: "Click to choose and select JSON file from your computer.",
+        },
+      },
       scoreboard: {
         title: "Scoreboard:",
         totalRounds: "Total Rounds: {{totalRounds}}",
