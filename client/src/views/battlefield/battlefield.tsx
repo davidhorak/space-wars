@@ -14,6 +14,7 @@ import { GameState } from "../../../../spaceships";
 import { useSearchParams } from "react-router-dom";
 import { Log } from "../../components/log";
 import styles from "./battlefield.module.css";
+import { DragAndDrop } from "../../components/dragAndDrop";
 
 let hasLoaded = false;
 let engine: Engine;
@@ -46,6 +47,8 @@ const BattlefieldView = (): JSX.Element => {
   const [showNames, setShowNames] = useState(false);
   const [autoReset, setAutoReset] = useState(false);
   const [totalRounds, setTotalRounds] = useState(0);
+
+  const [isProcessingStateFile, setIsProcessingStateFile] = useState<boolean>(false);
 
   useEffect(() => {
     if (hasLoaded) return;
@@ -191,6 +194,22 @@ const BattlefieldView = (): JSX.Element => {
     link.remove();
   };
 
+  const onLoadState = async (files: File[]) => {
+    const file = files[0];
+    if (!file) return;
+    setIsProcessingStateFile(true);
+
+  //   try {
+  //     const text = await file.text();
+  //     const state = JSON.parse(text);
+  //     engine.loadState(state);
+  //   } catch (error) {
+  //     setError(error as Error);
+  //   }
+  //   setProcessingStateFile(false);
+  // }
+  }
+
   return (
     <div
       className={classNames(
@@ -277,6 +296,26 @@ const BattlefieldView = (): JSX.Element => {
           >
             {t("views.battlefield.actions.saveState")}
           </Button>
+        </div>
+        {/* Load State */}
+        <h3 className={classNames("h6", "mt-24")}>
+          {t("views.battlefield.load.title")}
+        </h3>
+        <div className={classNames("mt-12")}>
+          <DragAndDrop
+            multiple={false}
+            i18n={{
+              drop: t("views.battlefield.load.drop"),
+              processing: t("views.battlefield.load.processing"),
+              select: {
+                label: t("views.battlefield.load.select.label"),
+                title: t("views.battlefield.load.select.title"),
+              },
+            }}
+            filter={["application/json"]}
+            processing={isProcessingStateFile}
+            onChange={onLoadState}
+          />
         </div>
       </div>
       <div
