@@ -1,5 +1,4 @@
 export type DragAndDropProps = {
-  checked: boolean;
   className?: string;
   filter?: File["type"][];
   multiple?: boolean;

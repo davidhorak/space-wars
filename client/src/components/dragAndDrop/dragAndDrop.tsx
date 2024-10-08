@@ -11,7 +11,8 @@ import { DefaultI18n } from "./i18n";
 
 import IconFileDrop from "../../icons/file-drop.svg?react";
 import IconFile from "../../icons/file.svg?react";
-import IconFolder  from "../../icons/folder.svg?react";
+import IconFolder from "../../icons/folder.svg?react";
+import { Size } from "../spinner/types";
 
 const DragAndDrop = ({
   className,
@@ -75,7 +76,6 @@ const DragAndDrop = ({
   return (
     <div
       className={classNames(
-        "drag-and-drop",
         style["drag-and-drop"],
         { [style["drag-and-drop--highlighted"]]: hasHighlight },
         { [style["drag-and-drop--disabled"]]: disabled },
@@ -86,17 +86,23 @@ const DragAndDrop = ({
         <div
           className={classNames(
             style["drag-and-drop__processing"],
-            "w-100 d-block rounded-md p-24 text-center"
+            "w-100",
+            "border-radius-12",
+            "p-24",
+            "text-center"
           )}
         >
-          <Spinner />
-          <p className="text-uppercase pt-6 b6">{i18n.processing}</p>
+          <Spinner size={Size.Small} />
+          <p className="pt-6">{i18n.processing}</p>
         </div>
       ) : (
         <button
           className={classNames(
             style["drag-and-drop__upload"],
-            "drag-and-drop__upload w-100 d-block rounded-md p-24 position-relative"
+            "w-100",
+            "p-24",
+            "border-radius-12",
+            "position-relative"
           )}
           type="button"
           onDragEnter={preventStop(() => setHasHighlight(true))}
@@ -105,12 +111,7 @@ const DragAndDrop = ({
           onDrop={preventStop(onDrop)}
           onClick={preventStop(onOpen)}
         >
-          <div
-            className={classNames(
-              style["drag-and-drop__preview"],
-              "drag-and-drop__preview"
-            )}
-          >
+          <div className={classNames(style["drag-and-drop__preview"])}>
             {children}
           </div>
           <div
@@ -118,14 +119,16 @@ const DragAndDrop = ({
               style["drag-and-drop__legend"],
               {
                 [style["drag-and-drop__legend--overlay"]]: !!children,
-                "rounded-md": !!children,
+                "border-radius-12": !!children,
               },
-              "drag-and-drop__legend d-flex align-items-center justify-content-center"
+              "d-flex",
+              "align-items-center",
+              "justify-content-center"
             )}
           >
             <div>
               {icon}
-              <p className="text-uppercase pt-6 b6">{i18n.drop}</p>
+              <p className="pt-6">{i18n.drop}</p>
             </div>
           </div>
         </button>
@@ -133,17 +136,26 @@ const DragAndDrop = ({
       <Button
         className={classNames(
           style["drag-and-drop__select"],
-          "d-block mt-24 w-100 rounded-md"
+          "mt-24",
+          "w-100",
+          "border-radius-12",
+          "position-relative"
         )}
         title={i18n.select.title}
         disabled={disabled || processing}
         onClick={onOpen}
       >
-        <div className="d-flex justify-content-center">
+        <div
+          className={classNames(
+            "d-flex",
+            "align-items-center",
+            "justify-content-center"
+          )}
+        >
           <IconFolder
             width={24}
             height={24}
-            className="mr-6 align-self-center"
+            className={classNames("mr-12", "align-self-center")}
           />
           <span>{i18n.select.label}</span>
         </div>
@@ -152,18 +164,22 @@ const DragAndDrop = ({
         <div
           className={classNames(
             style["drag-and-drop__desc"],
-            "drag-and-drop__desc d-flex mt-12"
+            "d-flex",
+            "mt-12"
           )}
         >
           <div
             className={classNames(
               style["drag-and-drop__desc__icon"],
-              "rounded-circle p-4 mr-6"
+              "p-4",
+              "mr-6"
             )}
           >
             <IconFile />
           </div>
-          <p className="self-align-center">{i18n.description}</p>
+          <p className={classNames("self-align-center", "pt-6")}>
+            {i18n.description}
+          </p>
         </div>
       )}
       <input
