@@ -261,6 +261,7 @@ func TestDeserialize(t *testing.T) {
 	game := NewGame(physics.Size{Width: 1024, Height: 768}, 1234567890)
 	game.SeedAsteroids()
 	game.AddSpaceship("test", physics.Vector2{X: 100, Y: 100}, 0)
+	game.manager.AddGameObject(NewExplosion(NewUUID(), physics.Vector2{X: 100, Y: 100}, 10, 1))
 	game.Start()
 	game.SpaceshipAction("test", func(spaceShip *Spaceship, gameManager *GameManager) {
 		spaceShip.FireLaser(gameManager)

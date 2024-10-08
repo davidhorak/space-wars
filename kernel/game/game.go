@@ -266,6 +266,16 @@ func Deserialize(jsonData string) (*Game, error) {
 			spaceship.laserReloadTimerSec = gameObjectMap["laserReloadTimerSec"].(float64)
 			spaceship.rocketReloadTimerSec = gameObjectMap["rocketReloadTimerSec"].(float64)
 			game.manager.AddSpaceship(spaceship)
+		case "explosion":
+			explosion := NewExplosion(
+				id,
+				position,
+				gameObjectMap["radius"].(float64),
+				gameObjectMap["durationSec"].(float64),
+			)
+			explosion.enabled = enabled
+			explosion.lifespanSec = gameObjectMap["lifespanSec"].(float64)
+			game.manager.AddGameObject(explosion)
 		default:
 			fmt.Println("Unknown game object type", gameObjectType)
 		}
