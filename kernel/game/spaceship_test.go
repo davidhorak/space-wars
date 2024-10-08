@@ -168,7 +168,7 @@ func TestSpaceship_FireLaser(t *testing.T) {
 	assert.Equal(t, 94.0, ship.energy)
 	assert.Equal(t, 0.25, ship.laserReloadTimerSec)
 
-	laser := gameManager.gameObjects[0].(*LaserProjectile)
+	laser := gameManager.gameObjects[0].(*Projectile)
 
 	assert.InDelta(t, 0, laser.position.X, 0.1)
 	assert.InDelta(t, 15, laser.position.Y, 0.1)
@@ -199,7 +199,7 @@ func TestSpaceship_FireRocket(t *testing.T) {
 	assert.Equal(t, 1.0, ship.rocketReloadTimerSec)
 	assert.Equal(t, int32(9), ship.rockets)
 
-	rocket := gameManager.gameObjects[0].(*RocketProjectile)
+	rocket := gameManager.gameObjects[0].(*Projectile)
 
 	assert.InDelta(t, 0, rocket.position.X, 0.1)
 	assert.InDelta(t, 15, rocket.position.Y, 0.1)

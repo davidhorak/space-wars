@@ -220,19 +220,19 @@ func Deserialize(jsonData string) (*Game, error) {
 
 			var projectile Projectile
 			if gameObjectType == "laser" {
-				projectile = NewLaserProjectile(
+				projectile = *NewLaserProjectile(
 					id,
 					position,
 					rotation,
 					owner.(*Spaceship),
-				).Projectile
+				)
 			} else {
-				projectile = NewRocketProjectile(
+				projectile = *NewRocketProjectile(
 					id,
 					position,
 					rotation,
 					owner.(*Spaceship),
-				).Projectile
+				)
 			}
 
 			projectile.enabled = enabled
