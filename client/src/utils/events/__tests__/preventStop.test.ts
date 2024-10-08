@@ -1,6 +1,6 @@
 import { preventStop } from '../preventStop';
 
-describe('preventStop', () => {
+describe('utils / events / preventStop', () => {
   const createMockEvent = () => ({
     preventDefault: jest.fn(),
     stopPropagation: jest.fn(),
