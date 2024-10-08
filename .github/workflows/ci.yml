@@ -42,6 +42,11 @@ jobs:
         cd client
         yarn install
 
+    - name: Run client tests
+      run: |
+        cd client
+        yarn test
+
     - name: Build client
       run: |
         cd client
