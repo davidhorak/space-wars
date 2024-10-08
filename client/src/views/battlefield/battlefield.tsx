@@ -197,7 +197,9 @@ const BattlefieldView = (): JSX.Element => {
   const onLoadState = async (files: File[]) => {
     const file = files[0];
     if (!file) return;
+
     setIsProcessingStateFile(true);
+    engine.pause();
 
   //   try {
   //     const text = await file.text();
@@ -226,31 +228,31 @@ const BattlefieldView = (): JSX.Element => {
           {t("views.battlefield.options.title")}
         </h2>
         <div className={classNames("d-flex mt-12")}>
-          <Toggle checked={showColliders} onChange={setShowColliders} />
+          <Toggle checked={showColliders} onChange={setShowColliders} disabled={isProcessingStateFile} />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
             {t("views.battlefield.options.colliders")}
           </h3>
         </div>
         <div className={classNames("d-flex mt-12")}>
-          <Toggle checked={showEnergy} onChange={setShowEnergy} />
+          <Toggle checked={showEnergy} onChange={setShowEnergy} disabled={isProcessingStateFile} />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
             {t("views.battlefield.options.energy")}
           </h3>
         </div>
         <div className={classNames("d-flex mt-12")}>
-          <Toggle checked={showHealth} onChange={setShowHealth} />
+          <Toggle checked={showHealth} onChange={setShowHealth} disabled={isProcessingStateFile} />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
             {t("views.battlefield.options.health")}
           </h3>
         </div>
         <div className={classNames("d-flex mt-12")}>
-          <Toggle checked={showNames} onChange={setShowNames} />
+          <Toggle checked={showNames} onChange={setShowNames} disabled={isProcessingStateFile} />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
             {t("views.battlefield.options.names")}
           </h3>
         </div>
         <div className={classNames("d-flex mt-12")}>
-          <Toggle checked={autoReset} onChange={setAutoReset} />
+          <Toggle checked={autoReset} onChange={setAutoReset} disabled={isProcessingStateFile} />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
             {t("views.battlefield.options.autoReset")}
           </h3>
@@ -260,7 +262,7 @@ const BattlefieldView = (): JSX.Element => {
           <Button
             className="w-100"
             onClick={() => engine.start()}
-            disabled={gameState === "running" || gameState === "ended"}
+            disabled={isProcessingStateFile || gameState === "running" || gameState === "ended"}
           >
             {t("views.battlefield.actions.start")}
           </Button>
@@ -269,7 +271,7 @@ const BattlefieldView = (): JSX.Element => {
           <Button
             className="w-100"
             onClick={() => engine.pause()}
-            disabled={gameState !== "running"}
+            disabled={isProcessingStateFile || gameState !== "running"}
           >
             {t("views.battlefield.actions.pause")}
           </Button>
@@ -278,13 +280,13 @@ const BattlefieldView = (): JSX.Element => {
           <Button
             className="w-100"
             onClick={() => engine.step()}
-            disabled={gameState === "running" || gameState === "ended"}
+            disabled={isProcessingStateFile || gameState === "running" || gameState === "ended"}
           >
             {t("views.battlefield.actions.step")}
           </Button>
         </div>
         <div className={classNames("mt-12")}>
-          <Button className="w-100" onClick={() => engine.reset()}>
+          <Button className="w-100" onClick={() => engine.reset()} disabled={isProcessingStateFile}>
             {t("views.battlefield.actions.restart")}
           </Button>
         </div>
@@ -292,7 +294,7 @@ const BattlefieldView = (): JSX.Element => {
           <Button
             className="w-100"
             onClick={saveState}
-            disabled={gameState !== "paused"}
+            disabled={isProcessingStateFile || gameState !== "paused"}
           >
             {t("views.battlefield.actions.saveState")}
           </Button>
