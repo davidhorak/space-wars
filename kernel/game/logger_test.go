@@ -42,11 +42,12 @@ func TestLogger_Clear(t *testing.T) {
 }
 
 func TestLogger_AddMessage(t *testing.T) {
+	now := time.Now()
 	logger := NewLogger()
 	logger.AddMessage(Message{
 		id:      1,
 		logType: LogTypeDamage,
-		time:    time.Now(),
+		time:    now,
 		message: "test",
 		meta:    map[string]interface{}{"test": "test"},
 	})
@@ -55,7 +56,7 @@ func TestLogger_AddMessage(t *testing.T) {
 	assert.Equal(t, Message{
 		id:      1,
 		logType: LogTypeDamage,
-		time:    time.Now(),
+		time:    now,
 		message: "test",
 		meta:    map[string]interface{}{"test": "test"},
 	}, logger.Logs()[0])
