@@ -198,7 +198,7 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
           drawAsteroid({
             render,
             asteroid: gameObject,
-            sprite: tilesMain.getTileByName(`asteroid_${i % 2}`),
+            sprite: tilesMain.getTileByName(`asteroid_${i % 3}`),
             elapsedTimeMs: elapsedTimeMs * (i % 2 == 0 ? 1 : -1),
             showCollider,
           });
@@ -259,6 +259,7 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
   tilesMain.mapTiles([
     ["asteroid_0", 0, 0],
     ["asteroid_1", 0, 1],
+    ["asteroid_2", 0, 2],
     ["spaceship", 1, 0],
     ["laser", 8, 3, 0.5],
     ["rocket", 8, 2, 0.5],
