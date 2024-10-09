@@ -24,7 +24,6 @@ jobs:
 
     - name: Build kernel WASM
       run: |
-        cd kernel
         GOOS=js GOARCH=wasm go build -o space-wars.wasm
 
   client-tests:
