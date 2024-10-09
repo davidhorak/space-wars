@@ -1,4 +1,5 @@
 import { COLOR_COLLIDER } from ".";
+import type { Laser } from "../../../../spaceships/types";
 import { Render } from "./render";
 import { Sprite } from "./Sprite";
 

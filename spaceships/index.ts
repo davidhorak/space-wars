@@ -4,11 +4,11 @@ import type {
   SpaceState,
 } from "./spaceshipManager";
 import { createDummy } from "./_samples/dummy";
-import {
-  createEngineTester,
-  createLaserTester,
-  createRocketTester,
-} from "./_samples/tester";
+// import {
+//   createEngineTester,
+//   createLaserTester,
+//   createRocketTester,
+// } from "./_samples/tester";
 
 export {
   isAsteroid,

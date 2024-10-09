@@ -21,7 +21,7 @@ const PageNotFoundView = (): JSX.Element => {
       <p>
         <Trans
           i18nKey="views.pageNotFound.body"
-          components={{ 1: <Link to={Path.Home} /> }}
+          components={{ 1: <Link to={Path.Battlefield} /> }}
         />
       </p>
     </div>
