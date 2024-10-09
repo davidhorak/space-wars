@@ -1,0 +1,14 @@
+.modal {
+  background-color: var(--color-modal-bg);
+}
+
+.modal__content {
+  background-color: var(--color-fg-default);
+  color: var(--color-bg-default);
+}
+
+@media screen and (min-width: 576px) {
+  .modal__content {
+    width: 540px;
+  }
+}
