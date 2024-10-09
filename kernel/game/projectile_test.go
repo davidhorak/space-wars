@@ -163,5 +163,22 @@ func TestProjectile_Serialize(t *testing.T) {
 	owner := NewSpaceship(1, "owner", physics.Vector2{X: 15, Y: 30}, 100)
 	projectile := NewProjectile(physics.Vector2{X: 15, Y: 30}, physics.Vector2{X: 10, Y: 20}, math.Pi, 5.0, 20.0, owner)
 
-	assert.Equal(t, map[string]interface{}{}, projectile.Serialize())
+	assert.Equal(t, map[string]interface{}{
+		"type":    "laser",
+		"id":      projectile.ID(),
+		"enabled": true,
+		"position": map[string]interface{}{
+			"x": 15.0,
+			"y": 30.0,
+		},
+		"rotation": math.Pi,
+		"velocity": map[string]interface{}{
+			"x": 10.0,
+			"y": 20.0,
+		},
+		"lifespanSec": 5.0,
+		"damage":      20.0,
+		"owner":       projectile.owner.ID(),
+		"collider":    projectile.collider.Serialize(),
+	}, projectile.Serialize())
 }

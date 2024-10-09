@@ -1,3 +1,5 @@
+import type { CollisionLog, DamageLog, GameStateLog, KillLog, Log } from "../../../../spaceships";
+
 export const isCollisionLog = (log: Log): log is CollisionLog => {
   return log.logType === "collision";
 };

@@ -1,6 +1,7 @@
 import { Render } from "./render";
 import { Sprite } from "./Sprite";
 import { COLOR_COLLIDER } from ".";
+import type { Asteroid } from "../../../../spaceships/types";
 
 export const drawAsteroid = ({
   render,

@@ -9,6 +9,7 @@ declare namespace spaceWars {
   function pause(): void;
   function reset(): void;
   function state(): import('../../spaceships').GameState;
+  function fromState(state: string): void;
   function addSpaceship(
     name: string,
     x: number,

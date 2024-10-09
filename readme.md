@@ -3,6 +3,8 @@
 Players take on the role of elite engineers tasked with programming AI bots to pilot
 futuristic spaceships in a high-stakes interstellar arena.
 
+[![CI](https://github.com/davidhorak/space-wars/actions/workflows/ci.yml/badge.svg)](https://github.com/davidhorak/space-wars/actions/workflows/ci.yml)
+
 **The goal is simple**: code your bot to outmaneuver, outgun, and outsmart the competition,
 becoming the last ship standing in a relentless battle for supremacy.
 
@@ -192,7 +194,7 @@ powershell -Command { go test -coverprofile="coverage.out" ./...; go tool cover 
 - [x] Add all kernel tests
 - [ ] Optimize the performance of the game
 - [ ] Polish the game tiles
-- [ ] Allow to load the game state form a json string
+- [x] Allow to load the game state form a json string
 - [ ] Add a guide how to run the kernel without the UI client.
 - [ ] [Spaceships TODOs](spaceships/readme.md)
 

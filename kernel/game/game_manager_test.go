@@ -46,6 +46,15 @@ func TestGameManager_HasEnded(t *testing.T) {
 	assert.True(t, manager.HasEnded(0))
 }
 
+func TestGameManager_GetGameObjectByID(t *testing.T) {
+	manager := NewGameManager()
+	asteroid := &Asteroid{id: 1}
+
+	manager.AddGameObject(asteroid)
+	assert.Equal(t, asteroid, manager.GetGameObjectByID(1))
+	assert.Nil(t, manager.GetGameObjectByID(2))
+}
+
 func TestGameManager_GetGameObjectByIndex(t *testing.T) {
 	manager := NewGameManager()
 	asteroid := &Asteroid{id: 1}

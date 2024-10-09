@@ -6,6 +6,7 @@ import { noop } from "lodash/fp";
 
 const Button = ({
   onClick = noop,
+  title,
   children,
   className,
   disabled = false,
@@ -27,6 +28,7 @@ const Button = ({
           [style['button--disabled']]: disabled,
         }
       )}
+      title={title}
       onClick={onClick}
       disabled={disabled}
     >

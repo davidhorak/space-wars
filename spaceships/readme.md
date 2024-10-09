@@ -76,7 +76,7 @@ Fires a rocket from the spaceship. This action can be used to attack other space
 ---
 
 ## Notes
-`_examples` folder contains the examples and tests of the spaceships that you can use as a template to create your own spaceship manager.
+`_samples` folder contains the examples and tests of the spaceships that you can use as a template to create your own spaceship manager.
 
 ## TODO
 - [ ] Add more examples

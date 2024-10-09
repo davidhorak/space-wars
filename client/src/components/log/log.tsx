@@ -1,12 +1,12 @@
 import classNames from "classnames";
-import styles from "./Log.module.css";
+import styles from "./log.module.css";
 import { LogProps } from "./types";
 import { Trans } from "react-i18next";
 import { isCollisionLog, isDamageLog, isKillLog } from "../../client/utils";
 import { spaceshipColorClassName } from "./spaceshipColorClassName";
 import type { Log } from "../../../../spaceships";
 
-function Log({ log }: LogProps) {
+const LogMessage = ({ log }: LogProps): JSX.Element => {
   const time = log.time.replace(/^\d+.+\s/, "");
 
   const renderMessage = (log: Log) => {
@@ -68,4 +68,4 @@ function Log({ log }: LogProps) {
   );
 }
 
-export default Log;
+export default LogMessage;
