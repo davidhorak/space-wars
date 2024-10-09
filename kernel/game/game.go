@@ -183,6 +183,7 @@ func Deserialize(jsonData string) (*Game, error) {
 	)
 
 	uuid := int64(0)
+	destroyedShips := 0
 
 	// Game objects
 	for _, gameObject := range data["gameObjects"].([]interface{}) {
@@ -265,6 +266,9 @@ func Deserialize(jsonData string) (*Game, error) {
 			spaceship.score = gameObjectMap["score"].(float64)
 			spaceship.laserReloadTimerSec = gameObjectMap["laserReloadTimerSec"].(float64)
 			spaceship.rocketReloadTimerSec = gameObjectMap["rocketReloadTimerSec"].(float64)
+			if gameObjectMap["destroyed"].(bool) {
+				destroyedShips++
+			}
 			game.manager.AddSpaceship(spaceship)
 		case "explosion":
 			explosion := NewExplosion(
@@ -306,6 +310,7 @@ func Deserialize(jsonData string) (*Game, error) {
 	}
 
 	SetUUID(uuid)
+	game.manager.destroyedShips = destroyedShips
 	game.status = Status(data["status"].(string))
 	return game, nil
 }
