@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import styles from "./Log.module.css";
+import styles from "./log.module.css";
 import { LogProps } from "./types";
 import { Trans } from "react-i18next";
 import { isCollisionLog, isDamageLog, isKillLog } from "../../client/utils";
