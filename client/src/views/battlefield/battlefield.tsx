@@ -15,6 +15,8 @@ import { useSearchParams } from "react-router-dom";
 import { Log } from "../../components/log";
 import styles from "./battlefield.module.css";
 import { DragAndDrop } from "../../components/dragAndDrop";
+import { toError } from "../../utils/error";
+import { Modal } from "../../components/modal";
 
 let hasLoaded = false;
 let engine: Engine;
@@ -48,7 +50,13 @@ const BattlefieldView = (): JSX.Element => {
   const [autoReset, setAutoReset] = useState(false);
   const [totalRounds, setTotalRounds] = useState(0);
 
-  const [isProcessingStateFile, setIsProcessingStateFile] = useState<boolean>(false);
+  const [stateFilename, setStateFilename] = useState<string>();
+  const [isProcessingStateFile, setIsProcessingStateFile] =
+    useState<boolean>(false);
+
+  const [showModal, setShowModal] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalBody, setModalBody] = useState<React.ReactNode>();
 
   useEffect(() => {
     if (hasLoaded) return;
@@ -201,16 +209,24 @@ const BattlefieldView = (): JSX.Element => {
     setIsProcessingStateFile(true);
     engine.pause();
 
-  //   try {
-  //     const text = await file.text();
-  //     const state = JSON.parse(text);
-  //     engine.loadState(state);
-  //   } catch (error) {
-  //     setError(error as Error);
-  //   }
-  //   setProcessingStateFile(false);
-  // }
-  }
+    try {
+      const text = await file.text();
+      engine.setStartState(text);
+      setStateFilename(file.name);
+    } catch (error) {
+      setModalTitle("Error");
+      setModalBody(
+        <p className={classNames("text-center")}>{toError(error).message}</p>
+      );
+      setShowModal(true);
+    }
+    setIsProcessingStateFile(false);
+  };
+
+  const removeState = () => {
+    engine.removeStartState();
+    setStateFilename(undefined);
+  };
 
   return (
     <div
@@ -228,31 +244,51 @@ const BattlefieldView = (): JSX.Element => {
           {t("views.battlefield.options.title")}
         </h2>
         <div className={classNames("d-flex mt-12")}>
-          <Toggle checked={showColliders} onChange={setShowColliders} disabled={isProcessingStateFile} />
+          <Toggle
+            checked={showColliders}
+            onChange={setShowColliders}
+            disabled={isProcessingStateFile}
+          />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
             {t("views.battlefield.options.colliders")}
           </h3>
         </div>
         <div className={classNames("d-flex mt-12")}>
-          <Toggle checked={showEnergy} onChange={setShowEnergy} disabled={isProcessingStateFile} />
+          <Toggle
+            checked={showEnergy}
+            onChange={setShowEnergy}
+            disabled={isProcessingStateFile}
+          />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
             {t("views.battlefield.options.energy")}
           </h3>
         </div>
         <div className={classNames("d-flex mt-12")}>
-          <Toggle checked={showHealth} onChange={setShowHealth} disabled={isProcessingStateFile} />
+          <Toggle
+            checked={showHealth}
+            onChange={setShowHealth}
+            disabled={isProcessingStateFile}
+          />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
             {t("views.battlefield.options.health")}
           </h3>
         </div>
         <div className={classNames("d-flex mt-12")}>
-          <Toggle checked={showNames} onChange={setShowNames} disabled={isProcessingStateFile} />
+          <Toggle
+            checked={showNames}
+            onChange={setShowNames}
+            disabled={isProcessingStateFile}
+          />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
             {t("views.battlefield.options.names")}
           </h3>
         </div>
         <div className={classNames("d-flex mt-12")}>
-          <Toggle checked={autoReset} onChange={setAutoReset} disabled={isProcessingStateFile} />
+          <Toggle
+            checked={autoReset}
+            onChange={setAutoReset}
+            disabled={isProcessingStateFile}
+          />
           <h3 className={classNames("h6 align-self-center pl-12 pt-2")}>
             {t("views.battlefield.options.autoReset")}
           </h3>
@@ -262,7 +298,11 @@ const BattlefieldView = (): JSX.Element => {
           <Button
             className="w-100"
             onClick={() => engine.start()}
-            disabled={isProcessingStateFile || gameState === "running" || gameState === "ended"}
+            disabled={
+              isProcessingStateFile ||
+              gameState === "running" ||
+              gameState === "ended"
+            }
           >
             {t("views.battlefield.actions.start")}
           </Button>
@@ -280,13 +320,21 @@ const BattlefieldView = (): JSX.Element => {
           <Button
             className="w-100"
             onClick={() => engine.step()}
-            disabled={isProcessingStateFile || gameState === "running" || gameState === "ended"}
+            disabled={
+              isProcessingStateFile ||
+              gameState === "running" ||
+              gameState === "ended"
+            }
           >
             {t("views.battlefield.actions.step")}
           </Button>
         </div>
         <div className={classNames("mt-12")}>
-          <Button className="w-100" onClick={() => engine.reset()} disabled={isProcessingStateFile}>
+          <Button
+            className="w-100"
+            onClick={() => engine.reset()}
+            disabled={isProcessingStateFile}
+          >
             {t("views.battlefield.actions.restart")}
           </Button>
         </div>
@@ -299,26 +347,43 @@ const BattlefieldView = (): JSX.Element => {
             {t("views.battlefield.actions.saveState")}
           </Button>
         </div>
-        {/* Load State */}
-        <h3 className={classNames("h6", "mt-24")}>
-          {t("views.battlefield.load.title")}
-        </h3>
-        <div className={classNames("mt-12")}>
-          <DragAndDrop
-            multiple={false}
-            i18n={{
-              drop: t("views.battlefield.load.drop"),
-              processing: t("views.battlefield.load.processing"),
-              select: {
-                label: t("views.battlefield.load.select.label"),
-                title: t("views.battlefield.load.select.title"),
-              },
-            }}
-            filter={["application/json"]}
-            processing={isProcessingStateFile}
-            onChange={onLoadState}
-          />
-        </div>
+        {/* State file */}
+        {stateFilename && (
+          <>
+            <h3 className={classNames("h6", "mt-24")}>
+              {t("views.battlefield.load.loadedTitle")}
+            </h3>
+            <p className={classNames("mt-6")}>{stateFilename}</p>
+            <div className={classNames("mt-12")}>
+              <Button className="w-100" onClick={removeState}>
+                {t("views.battlefield.load.remove")}
+              </Button>
+            </div>
+          </>
+        )}
+        {!stateFilename && (
+          <>
+            <h3 className={classNames("h6", "mt-24")}>
+              {t("views.battlefield.load.title")}
+            </h3>
+            <div className={classNames("mt-12")}>
+              <DragAndDrop
+                multiple={false}
+                i18n={{
+                  drop: t("views.battlefield.load.drop"),
+                  processing: t("views.battlefield.load.processing"),
+                  select: {
+                    label: t("views.battlefield.load.select.label"),
+                    title: t("views.battlefield.load.select.title"),
+                  },
+                }}
+                filter={["application/json"]}
+                processing={isProcessingStateFile}
+                onChange={onLoadState}
+              />
+            </div>
+          </>
+        )}
       </div>
       <div
         className={classNames(
@@ -476,6 +541,12 @@ const BattlefieldView = (): JSX.Element => {
           </>
         )}
       </div>
+      {/* Modal */}
+      {showModal && (
+        <Modal title={modalTitle} onClose={() => setShowModal(false)}>
+          {modalBody}
+        </Modal>
+      )}
     </div>
   );
 };

@@ -46,8 +46,10 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
   }
 
   const canvas = getCanvas(canvasId);
-  canvas.width = width;
-  canvas.height = height;
+  const baseWidth = width;
+  const baseHeight = height;
+  canvas.width = baseWidth;
+  canvas.height = baseHeight;
 
   const context = canvas.getContext("2d");
   if (context === null) {
@@ -59,6 +61,7 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
   const sprites = createSprites();
 
   let gameState: GameState | undefined;
+  let loadedRawGameState: string | undefined;
   let elapsedTimeMs = 0;
   let logSize = 0;
 
@@ -78,30 +81,37 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
     spaceWars.start();
     spaceships.forEach((spaceship) => spaceship.onStart(width, height));
     gameState = spaceWars.state();
-    onStateChanged.broadcast("running");
-    onLogsChanged.broadcast([]);
+    onStateChanged.broadcast(gameState.status);
+    onLogsChanged.broadcast(reverse(gameState.logs));
     onScoreboardChanged.broadcast(getScoreboard(gameState.gameObjects));
   };
 
   const reset = (startLocations: Vector2[]) => {
     elapsedTimeMs = 0;
     logSize = 0;
-    startLocations = shuffle(startLocations);
-    spaceships.forEach((spaceship, index) => {
-      spaceWars.action(
-        "setStartPosition",
-        spaceship.name,
-        startLocations[index].x,
-        startLocations[index].y,
-        Math.random() * Math.PI * 2
-      );
-    });
-    spaceWars.reset();
-    spaceWars.start();
-    spaceships.forEach((spaceship) => spaceship.onReset());
+
+    if (isUndefined(loadedRawGameState)) {
+      startLocations = shuffle(startLocations);
+      spaceships.forEach((spaceship, index) => {
+        spaceWars.action(
+          "setStartPosition",
+          spaceship.name,
+          startLocations[index].x,
+          startLocations[index].y,
+          Math.random() * Math.PI * 2
+        );
+      });
+      spaceWars.reset();
+      spaceWars.start();
+    } else {
+      spaceWars.fromState(loadedRawGameState);
+    }
+
+    spaceshipNameIndexMap.clear();
     gameState = spaceWars.state();
-    onStateChanged.broadcast("running");
-    onLogsChanged.broadcast([]);
+    spaceships.forEach((spaceship) => spaceship.onReset());
+    onStateChanged.broadcast(gameState.status);
+    onLogsChanged.broadcast(reverse(gameState.logs));
     onScoreboardChanged.broadcast(getScoreboard(gameState.gameObjects));
   };
 
@@ -347,6 +357,26 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
     showHealth: (state: boolean) => (showHealth = state),
     showNames: (state: boolean) => (showNames = state),
     state: (): GameState | undefined => gameState,
+    setStartState: (rawState: string) => {
+      const state = JSON.parse(rawState) as GameState;
+      for (const go of state.gameObjects.filter((go) => go.type == "spaceship")) {
+        const spaceship = spaceships.find((spaceship) => spaceship.name == go.name);
+        if (!spaceship) {
+          throw new Error(`spaceship ${go.name} not found`);
+        }
+      }
+
+      loadedRawGameState = rawState;
+      canvas.width = state.size.width;
+      canvas.height = state.size.height;
+      reset(startLocations);
+    },
+    removeStartState: () => {
+      loadedRawGameState = undefined;
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+      spaceWars.reset();
+    },
   };
 };
 
