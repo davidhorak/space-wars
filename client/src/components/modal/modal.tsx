@@ -3,6 +3,7 @@ import { PropsWithChildren } from "react";
 import { Button } from "../button";
 import { ModalProps } from "./types";
 import classNames from "classnames";
+import { stop } from "../../utils/events";
 
 import style from "./modal.module.css";
 
@@ -35,7 +36,7 @@ const Modal = ({
       )}
       onClick={onClose}
     >
-      <div className={classNames(style["modal__content"], "p-24", "border-radius-12")}>
+      <div className={classNames(style["modal__content"], "p-24", "border-radius-12")} onClick={stop(noop)}>
         <div className={classNames(style["modal__header"], "position-relative")}>
           <h2 className={classNames("px-24", "text-center", "h5")}>{title}</h2>
           <button className={classNames("button-icon", "position-absolute", "top-0", "right-0")} onClick={onClose}>
