@@ -375,7 +375,7 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
       loadedRawGameState = undefined;
       canvas.width = baseWidth;
       canvas.height = baseHeight;
-      spaceWars.reset();
+      reset(startLocations);
     },
   };
 };
