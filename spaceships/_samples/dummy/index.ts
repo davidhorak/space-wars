@@ -68,8 +68,8 @@ const dummy = (name: string): SpaceshipManager => {
   return {
     name,
     onUpdate: onUpdate,
-    onStart: function () {
-      this.onReset();
+    onStart: function (spaceship, width, height) {
+      this.onReset(spaceship, width, height);
     },
     onReset: () => {
       attacking = true;
