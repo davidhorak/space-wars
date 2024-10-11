@@ -30,7 +30,7 @@ https://github.com/user-attachments/assets/bf9362c9-e9b1-4e22-9cf9-fa058dab5283
 In Space Wars, intelligence and innovation are your greatest weapons. Code wisely, pilot your ships with precision,
 and claim your place among the stars!
 
-> Updated: Sep 23, 2024
+> Updated: Oct 10, 2024
 
 > Notes:
 >

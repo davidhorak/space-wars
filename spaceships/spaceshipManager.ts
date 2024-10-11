@@ -10,8 +10,8 @@ export type SpaceState = {
 export interface SpaceshipManager {
   name: string;
   onUpdate(state: SpaceState): SpaceshipAction[];
-  onStart(width: number, height: number): void;
-  onReset(): void;
+  onStart(spaceship: Spaceship, width: number, height: number): void;
+  onReset(spaceship: Spaceship, width: number, height: number): void;
 }
 
 export type SpaceshipManagerFactory = () => Promise<SpaceshipManager>;

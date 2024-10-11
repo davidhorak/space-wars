@@ -3,5 +3,6 @@ export { getCanvas } from "./canvas";
 export { isCollisionLog, isGameStateLog, isKillLog, isDamageLog } from "./log";
 export { getStartLocations } from "./startLocations";
 export { getScoreboard } from "./scoreboard";
+export { getSpaceship } from "./getSpaceship";
 export type { Vector2 } from "./vector2";
 export type { ScoreboardEntry } from "./scoreboard";
