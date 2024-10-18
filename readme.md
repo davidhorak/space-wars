@@ -185,6 +185,10 @@ powershell -Command { go test -coverprofile="coverage.out" ./...; go tool cover 
 
 - Go to [client](client) and run `yarn dev` to start the frontend.
 
+### How to run the kernel without the UI client
+
+See [run-kernel-without-ui](_guide/run-kernel-without-ui/readme.md) for more information.
+
 ---
 
 ### TODO
@@ -195,7 +199,7 @@ powershell -Command { go test -coverprofile="coverage.out" ./...; go tool cover 
 - [ ] Optimize the performance of the game
 - [x] Polish the game tiles
 - [x] Allow to load the game state form a json string
-- [ ] Add a guide how to run the kernel without the UI client.
+- [x] Add a guide how to run the kernel without the UI client.
 - [ ] [Spaceships TODOs](spaceships/readme.md)
 
 ---
