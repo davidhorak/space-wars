@@ -285,13 +285,13 @@ func TestSpaceship_Move_Basic(t *testing.T) {
 		// 100 main thrust, no side thrust, no drag, 1 tick, 1 second
 		{100, 0, 0, 1, 1, physics.Vector2{X: 0, Y: 62.4}, physics.Vector2{X: 0, Y: 62.4}, math.Pi / 2},
 		// 100 left thrust, no main thrust, no drag, 1 tick, 1 second
-		{0, 100, 0, 1, 1, physics.Vector2{X: -31.2, Y: 0}, physics.Vector2{X: -31.2, Y: 0}, math.Pi},
-		// // 100 right thrust, no main thrust, no drag, 1 tick, 1 second
-		{0, 0, 100, 1, 1, physics.Vector2{X: 31.2, Y: 0}, physics.Vector2{X: 31.2, Y: 0}, 0},
-		// // 100 main thrust, 100 left thrust, no drag, 1 tick, 1 second
-		{100, 100, 0, 1, 1, physics.Vector2{X: -31.2, Y: 62.4}, physics.Vector2{X: -31.2, Y: 62.4}, utils.DegreeToRad(116.5650511771)},
-		// // 100 main thrust, 100 right thrust, no drag, 1 tick, 1 second
-		{100, 0, 100, 1, 1, physics.Vector2{X: 31.2, Y: 62.4}, physics.Vector2{X: 31.2, Y: 62.4}, utils.DegreeToRad(63.4349488229)},
+		{0, 100, 0, 1, 1, physics.Vector2{X: -49.9, Y: 0}, physics.Vector2{X: -49.9, Y: 0}, math.Pi},
+		// 100 right thrust, no main thrust, no drag, 1 tick, 1 second
+		{0, 0, 100, 1, 1, physics.Vector2{X: 49.9, Y: 0}, physics.Vector2{X: 49.9, Y: 0}, 0},
+		// 100 main thrust, 100 left thrust, no drag, 1 tick, 1 second
+		{100, 100, 0, 1, 1, physics.Vector2{X: -49.9, Y: 62.4}, physics.Vector2{X: -49.9, Y: 62.4}, utils.DegreeToRad(128.6598082544)},
+		// 100 main thrust, 100 right thrust, no drag, 1 tick, 1 second
+		{100, 0, 100, 1, 1, physics.Vector2{X: 49.9, Y: 62.4}, physics.Vector2{X: 49.9, Y: 62.4}, utils.DegreeToRad(51.3401917460)},
 	}
 
 	for _, test := range tests {

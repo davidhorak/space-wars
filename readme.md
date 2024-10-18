@@ -54,9 +54,9 @@ and claim your place among the stars!
 
 - Each engine has its own throttle, from **0** to **100**.
 - The main thruster consumes **12.5** energy per second.
-- The navigation thrusters consume **6.66** energy per second.
+- The navigation thrusters consume **8.33** energy per second.
 - The trust from all engines is added together to get the total trust.
-- The side thrusters are **2** times weaker than the main thruster.
+- The side thrusters have **80%** of the power of the main thruster.
 - The trust is applied in the direction of the spaceship.
 - Using the engines consumes energy, x/s for the main thruster, and y/s for the navigation thrusters.
 - The maximum speed is **192** m/s.
@@ -190,7 +190,7 @@ powershell -Command { go test -coverprofile="coverage.out" ./...; go tool cover 
 ### TODO
 
 - [x] Add CI
-- [ ] Test the game and balance the game, mainly the truster physics
+- [x] Test the game and balance the game, mainly the truster physics
 - [x] Add all kernel tests
 - [ ] Optimize the performance of the game
 - [x] Polish the game tiles
