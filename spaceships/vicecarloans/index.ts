@@ -3,10 +3,8 @@ import { SpaceshipManager, SpaceshipManagerFactory, SpaceState } from "../spaces
 import { Asteroid, Laser, Rocket, Spaceship } from "../types";
 
 const calculateDistance = (x1: number, y1: number, x2: number, y2: number): number => {
-    return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+    return Math.abs(Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2));
 }
-
-
 
 const willCollide = (x1: number, y1: number, x2: number, y2: number, velocity: {x: number, y: number}, radius: number): boolean => { 
     const objectPos = {xLeft: x2, xRight: x2 + radius, yLeft: y2, yRight: y2 + radius};
@@ -39,19 +37,22 @@ class VicecarloansSpaceship implements SpaceshipManager {
     private width: number;
     private height: number;
     private shipBound = 30
+    private attacking = true;
     private isRecovering = false;
     private lastRocketFireMs = 0;
     // Config
-    private ENEGERY_THRESHOLD = 50;
-    private DESIRED_ENERGY = 50;
-    private ENEGERY_THRESHOLD_LASER = 50;
-    private ENEGERY_THRESHOLD_ROCKET = 50;
+    private ENEGERY_THRESHOLD = 10;
+    private DESIRED_ENERGY = 30;
+    private ENEGERY_THRESHOLD_LASER = 25;
+    private ENEGERY_THRESHOLD_ROCKET = 25;
     private DODGE_THRESHOLD_LASER = 200;
-    private DODGE_THRESHOLD_ROCKET = 200; 
-    private DODGE_THRESHOLD_ENEMIES = 200; 
-    private DODGE_THRESHOLD_ASTEROID = 100; 
-    private MOVE_FACTOR = 30;
-    private MOVE_ADD = 50;
+    private DODGE_THRESHOLD_ROCKET = 300; 
+    private DODGE_THRESHOLD_ENEMIES = 100; 
+    private DODGE_THRESHOLD_ASTEROID = 50; 
+    private MOVE_FACTOR_Y = 30;
+    private MOVE_ADD_Y = 40;
+    private MOVE_FACTOR_X = 30;
+    private MOVE_ADD_X = 20;
     // Array of objects
     private asteroidLocs: Array<Asteroid> = [];
     private potentialAsteroidsHit: Array<Asteroid> = [];
@@ -92,6 +93,7 @@ class VicecarloansSpaceship implements SpaceshipManager {
             return []
         }
 
+
         this.potentialAsteroidsHit = this.asteroidLocs.filter(asteroid => {
             return calculateDistance(this.spaceship.collider.position.x, this.spaceship.collider.position.y, asteroid.collider.position.x, asteroid.collider.position.y) < this.DODGE_THRESHOLD_ASTEROID;
         })
@@ -116,7 +118,6 @@ class VicecarloansSpaceship implements SpaceshipManager {
             return false
         })
         
-        const dodgeFactor = this.potentialEnemiesHit.length || this.potentialLasersHit.length || this.potentialRocketsHit.length || this.potentialAsteroidsHit ? this.optimizeDodge() as SetEngineThrustAction[] : []
 
         // Rocket
         if (this.lastRocketFireMs > 0) {
@@ -127,12 +128,14 @@ class VicecarloansSpaceship implements SpaceshipManager {
         }
 
         
-        const fireRocketAction = this.spaceship.energy > this.ENEGERY_THRESHOLD_ROCKET && this.spaceship.rocketReloadTimerSec == 0 && this.spaceship.rockets > 0 ? [["fireRocket"]]: [];
+        const fireRocketAction = this.spaceship.energy > this.ENEGERY_THRESHOLD_ROCKET && this.spaceship.rocketReloadTimerSec == 0 && this.spaceship.rockets > 0 && Math.random() > 0.5 ? [["fireRocket"]]: [];
 
         if(fireRocketAction.length > 0) {
             this.lastRocketFireMs = 500;
         }
-        const fireLaserAction = this.spaceship.energy > 10 && this.lastRocketFireMs <= 0 && this.spaceship.energy > this.ENEGERY_THRESHOLD_LASER && this.spaceship.laserReloadTimerSec == 0 ? [["fireLaser"]] : [];
+        const fireLaserAction = this.spaceship.energy > 10 && this.lastRocketFireMs <= 0 && this.spaceship.energy > this.ENEGERY_THRESHOLD_LASER && this.spaceship.laserReloadTimerSec == 0 && Math.random() < 0.5 ? [["fireLaser"]] : [];
+
+        const dodgeFactor = (this.potentialEnemiesHit.length || this.potentialLasersHit.length || this.potentialRocketsHit.length || this.potentialAsteroidsHit) ? this.optimizeDodge() as SetEngineThrustAction[] : []
 
         
         console.log(dodgeFactor)
@@ -142,6 +145,7 @@ class VicecarloansSpaceship implements SpaceshipManager {
             ...dodgeFactor, 
             ...(fireRocketAction as FireRocketAction[]),
             ...(fireLaserAction as FireLaserAction[]), 
+           
         ];
     }
 
@@ -164,57 +168,58 @@ class VicecarloansSpaceship implements SpaceshipManager {
 
     computeMove(main: number, left: number, right: number): [number, number, number] {
         console.log(main, left, right)
+        const futureXMoveRight = this.spaceship.position.x + right * this.MOVE_FACTOR_X + this.MOVE_ADD_X;
+        const futureXMoveLeft = this.spaceship.position.x + left * this.MOVE_FACTOR_X + this.MOVE_ADD_X;
+        const futureYMove = this.spaceship.position.y + main * this.MOVE_FACTOR_Y + this.MOVE_ADD_Y;
          // Check if the computed thrust values will cause a collision with any asteroid
-        const willCollideWithAsteroidMoveRight = this.asteroidLocs.some(asteroid => {
-            const futureX = this.spaceship.position.x + right * this.MOVE_FACTOR + this.MOVE_ADD;
-            const futureY = this.spaceship.position.y;
-
-            return calculateDistance(futureX, futureY, asteroid.collider.position.x + asteroid.collider.radius, asteroid.collider.position.y + asteroid.collider.radius) < this.DODGE_THRESHOLD_ASTEROID;
+        const willCollideWithAsteroidMoveLeft = this.asteroidLocs.some(asteroid => {
+            // Move Right?
+            return calculateDistance(futureXMoveLeft, this.spaceship.position.y, asteroid.collider.position.x + asteroid.collider.radius, asteroid.collider.position.y + asteroid.collider.radius) < this.DODGE_THRESHOLD_ASTEROID ||
+            calculateDistance(futureXMoveLeft, futureYMove, asteroid.collider.position.x + asteroid.collider.radius, asteroid.collider.position.y + asteroid.collider.radius) < this.DODGE_THRESHOLD_ASTEROID; 
         });
 
-        const willCollideWithAsteroidMoveLeft = this.asteroidLocs.some(asteroid => {
-            const futureX = this.spaceship.position.x + left  * this.MOVE_FACTOR + this.MOVE_ADD;
-            const futureY = this.spaceship.position.y;
-
-            return calculateDistance(futureX, futureY, asteroid.collider.position.x + asteroid.collider.radius, asteroid.collider.position.y + asteroid.collider.radius) < this.DODGE_THRESHOLD_ASTEROID;
+        const willCollideWithAsteroidMoveRight = this.asteroidLocs.some(asteroid => {
+            return calculateDistance(futureXMoveRight, this.spaceship.position.y, asteroid.collider.position.x + asteroid.collider.radius, asteroid.collider.position.y + asteroid.collider.radius) < this.DODGE_THRESHOLD_ASTEROID ||
+            calculateDistance(futureXMoveRight, futureYMove, asteroid.collider.position.x + asteroid.collider.radius, asteroid.collider.position.y + asteroid.collider.radius) < this.DODGE_THRESHOLD_ASTEROID;
         });
 
         const willCollideWithAsteroidMoveY = this.asteroidLocs.some(asteroid => {
-            const futureX = this.spaceship.position.x;
-            const futureY = this.spaceship.position.y + main  * this.MOVE_FACTOR + this.MOVE_ADD;
+            return calculateDistance(this.spaceship.position.x, futureYMove, asteroid.collider.position.x + asteroid.collider.radius, asteroid.collider.position.y + asteroid.collider.radius) < this.DODGE_THRESHOLD_ASTEROID;
+        })
 
-            return calculateDistance(futureX, futureY, asteroid.collider.position.x + asteroid.collider.radius, asteroid.collider.position.y + asteroid.collider.radius) < this.DODGE_THRESHOLD_ASTEROID;
+        // Enemies
+        const willCollideWithShipMoveLeft = this.potentialEnemiesHit.some(enemy => {
+            // Move Right?
+            return calculateDistance(futureXMoveLeft, this.spaceship.position.y, enemy.collider.position.x + enemy.collider.radius, enemy.collider.position.y + enemy.collider.radius) < this.DODGE_THRESHOLD_ENEMIES ||
+            calculateDistance(futureXMoveLeft, futureYMove, enemy.collider.position.x + enemy.collider.radius, enemy.collider.position.y + enemy.collider.radius) < this.DODGE_THRESHOLD_ENEMIES; 
         });
 
-        const willCollideWithAsteroidMoveLeftY = this.asteroidLocs.some(asteroid => {
-            const futureX = this.spaceship.position.x + left  * this.MOVE_FACTOR + this.MOVE_ADD;
-            const futureY = this.spaceship.position.y + main  * this.MOVE_FACTOR + this.MOVE_ADD;
+        const willCollideWithShipMoveRight = this.potentialEnemiesHit.some(enemy => {
+            return calculateDistance(futureXMoveRight, this.spaceship.position.y, enemy.collider.position.x + enemy.collider.radius, enemy.collider.position.y + enemy.collider.radius) < this.DODGE_THRESHOLD_ENEMIES ||
+            calculateDistance(futureXMoveRight, futureYMove, enemy.collider.position.x + enemy.collider.radius, enemy.collider.position.y + enemy.collider.radius) < this.DODGE_THRESHOLD_ENEMIES;
+        });
 
-            return calculateDistance(futureX, futureY, asteroid.collider.position.x + asteroid.collider.radius, asteroid.collider.position.y + asteroid.collider.radius) < this.DODGE_THRESHOLD_ASTEROID;
+        const willCollideWithShipMoveY = this.potentialEnemiesHit.some(enemy => {
+            return calculateDistance(this.spaceship.position.x, futureYMove, enemy.collider.position.x + enemy.collider.radius, enemy.collider.position.y + enemy.collider.radius) < this.DODGE_THRESHOLD_ENEMIES;
         })
 
-        const willCollideWithAsteroidMoveRightY = this.asteroidLocs.some(asteroid => {
-            const futureX = this.spaceship.position.x + right  * this.MOVE_FACTOR + this.MOVE_ADD;
-            const futureY = this.spaceship.position.y + main  * this.MOVE_FACTOR + this.MOVE_ADD;
 
-            return calculateDistance(futureX, futureY, asteroid.collider.position.x + asteroid.collider.radius, asteroid.collider.position.y + asteroid.collider.radius) < this.DODGE_THRESHOLD_ASTEROID;
-        })
+        console.log("LEFT", willCollideWithAsteroidMoveLeft)
+        console.log("RIGHT", willCollideWithAsteroidMoveRight)
+        console.log("Y", willCollideWithAsteroidMoveY)
 
-        console.log(willCollideWithAsteroidMoveLeft || willCollideWithAsteroidMoveLeftY )
-        const l = willCollideWithAsteroidMoveLeft || willCollideWithAsteroidMoveLeftY ? right: left > right ? left : 0
-        const r = willCollideWithAsteroidMoveRight || willCollideWithAsteroidMoveRightY ? left: right > left ? right : 0
-        const lThrust = l != 0 ? l * this.MOVE_FACTOR + this.MOVE_ADD : 0;
-        const rThrust = r != 0 ? r * this.MOVE_FACTOR + this.MOVE_ADD : 0; 
-        const m = willCollideWithAsteroidMoveY || willCollideWithAsteroidMoveLeftY || willCollideWithAsteroidMoveRightY ? 0: main;
-        const mThrust = m != 0 ? m * this.MOVE_FACTOR + this.MOVE_ADD : 0;
+        const l = willCollideWithAsteroidMoveLeft || willCollideWithShipMoveLeft ? 0: left
+        const r = willCollideWithAsteroidMoveRight || willCollideWithShipMoveRight? 0: right
+        const lThrust = l != 0 ? l * this.MOVE_FACTOR_X + this.MOVE_ADD_X : 0;
+        const rThrust = r != 0 ? r * this.MOVE_FACTOR_X + this.MOVE_ADD_X : 0; 
+        const m = willCollideWithAsteroidMoveY || willCollideWithShipMoveY ? 0: main;
+        const mThrust = m != 0 ? m * this.MOVE_FACTOR_Y + this.MOVE_ADD_Y : 0;
         // return thurst != 0 ? thurst * this.MOVE_FACTOR + 10 : 0;
         return [mThrust, lThrust, rThrust]
     }
 
     optimizeDodge(): SpaceshipAction[] {
         const avoidanceVector = { x: 0, y: 0 };
-        
-        
         const addAvoidanceVector = (threat: any, weightFactor: number = 1) => {
             const dx = this.spaceship.position.x - threat.x;
             const dy = this.spaceship.position.y - threat.y;
@@ -232,7 +237,7 @@ class VicecarloansSpaceship implements SpaceshipManager {
         this.potentialLasersHit.forEach(laser => addAvoidanceVector({x: laser.collider.position.x, y: laser.collider.position.y}));
         this.potentialRocketsHit.forEach(rocket => addAvoidanceVector({x: rocket.collider.position.x, y: rocket.collider.position.y}));
         this.potentialEnemiesHit.forEach(enemy => addAvoidanceVector({x: enemy.collider.position.x, y: enemy.collider.position.y}));
-        this.potentialAsteroidsHit.forEach(asteroid => addAvoidanceVector({x: asteroid.collider.position.x, y: asteroid.collider.position.y}, 2));
+        this.potentialAsteroidsHit.forEach(asteroid => addAvoidanceVector({x: asteroid.collider.position.x, y: asteroid.collider.position.y}));
         
         const mainThrust = Math.min(Math.max(avoidanceVector.y, -1), 1);
         const leftThrust = Math.min(Math.max(-avoidanceVector.x, -1), 1);
