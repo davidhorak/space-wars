@@ -6,30 +6,25 @@ const calculateDistance = (x1: number, y1: number, x2: number, y2: number): numb
     return Math.abs(Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2));
 }
 
-const willCollide = (x1: number, y1: number, x2: number, y2: number, velocity: {x: number, y: number}, radius: number): boolean => { 
-    const objectPos = {xLeft: x2, xRight: x2 + radius, yLeft: y2, yRight: y2 + radius};
-    const movePos = {xLeft: x1, xRight: x1 + velocity.x, yLeft: y1, yRight: y1 + velocity.y};
+// Predict where the enemy will be based on their current velocity and shoot there
+const predictEnemyPosition = (enemy: Spaceship, deltaTime: number): { x: number; y: number } => {
+    const futureX = enemy.collider.position.x + (enemy.velocity.x * deltaTime);
+    const futureY = enemy.collider.position.y + (enemy.velocity.y * deltaTime);
+    return { x: futureX, y: futureY };
+};
 
-    return objectPos.xRight < movePos.xLeft &&
-        objectPos.xLeft > movePos.xRight && 
-        objectPos.yRight < movePos.yLeft && 
-        objectPos.yLeft > movePos.yRight
-}
- 
-const findMinimumCollisionVelocity = (x1: number, y1: number, x2: number, y2: number, radius: number): {x: number, y: number} | null => {
-    const velocityRange = 100; // Define the range of velocities to test
-    const step = 1; // Define the step size for velocity increments
+// Check if there is an asteroid blocking the shot path
+const isAsteroidBlockingShot = (ship: Spaceship, enemy: Spaceship, asteroids: Asteroid[]): boolean => {
+    const shotLine = { x1: ship.collider.position.x, y1: ship.collider.position.y, x2: enemy.collider.position.x, y2: enemy.collider.position.y };
+    return asteroids.some(asteroid => {
+        const asteroidX = asteroid.collider.position.x;
+        const asteroidY = asteroid.collider.position.y;
+        const distanceToShotLine = Math.abs((shotLine.x2 - shotLine.x1) * (shotLine.y1 - asteroidY) - (shotLine.x1 - asteroidX) * (shotLine.y2 - shotLine.y1)) /
+            Math.sqrt((shotLine.x2 - shotLine.x1) ** 2 + (shotLine.y2 - shotLine.y1) ** 2);
+        return distanceToShotLine < asteroid.collider.radius; // Check if asteroid intersects the shot path
+    });
+};
 
-    for (let vx = -velocityRange; vx <= velocityRange; vx += step) {
-        for (let vy = -velocityRange; vy <= velocityRange; vy += step) {
-            if (willCollide(x1, y1, x2, y2, {x: vx, y: vy}, radius)) {
-                return {x: vx, y: vy}; // Return the first velocity that causes a collision
-            }
-        }
-    }
-
-    return null; // Return null if no collision velocity is found
-}
 
 class VicecarloansSpaceship implements SpaceshipManager {
     name: string = "vicecarloans"
@@ -40,17 +35,19 @@ class VicecarloansSpaceship implements SpaceshipManager {
     private attacking = true;
     private isRecovering = false;
     private lastRocketFireMs = 0;
+    private lastLaserFireMs = 0;
     // Config
     private ENEGERY_THRESHOLD = 10;
-    private DESIRED_ENERGY = 30;
+    private DESIRED_ENERGY = 40;
+    private DESIRED_ENERGY_FOR_SPIN_MOVE = 50;
     private ENEGERY_THRESHOLD_LASER = 25;
     private ENEGERY_THRESHOLD_ROCKET = 25;
     private DODGE_THRESHOLD_LASER = 200;
     private DODGE_THRESHOLD_ROCKET = 300; 
-    private DODGE_THRESHOLD_ENEMIES = 100; 
-    private DODGE_THRESHOLD_ASTEROID = 50; 
+    private DODGE_THRESHOLD_ENEMIES = 300; 
+    private DODGE_THRESHOLD_ASTEROID = 30; 
     private MOVE_FACTOR_Y = 30;
-    private MOVE_ADD_Y = 40;
+    private MOVE_ADD_Y = 30;
     private MOVE_FACTOR_X = 30;
     private MOVE_ADD_X = 20;
     // Array of objects
@@ -127,25 +124,58 @@ class VicecarloansSpaceship implements SpaceshipManager {
             }
         }
 
-        
-        const fireRocketAction = this.spaceship.energy > this.ENEGERY_THRESHOLD_ROCKET && this.spaceship.rocketReloadTimerSec == 0 && this.spaceship.rockets > 0 && Math.random() > 0.5 ? [["fireRocket"]]: [];
-
-        if(fireRocketAction.length > 0) {
-            this.lastRocketFireMs = 500;
+        if (this.lastLaserFireMs > 0) {
+            this.lastLaserFireMs -= state.deltaTimeMs;
+            if (this.lastLaserFireMs <= 0) {
+              this.lastLaserFireMs = 0;
+            }
         }
-        const fireLaserAction = this.spaceship.energy > 10 && this.lastRocketFireMs <= 0 && this.spaceship.energy > this.ENEGERY_THRESHOLD_LASER && this.spaceship.laserReloadTimerSec == 0 && Math.random() < 0.5 ? [["fireLaser"]] : [];
 
-        const dodgeFactor = (this.potentialEnemiesHit.length || this.potentialLasersHit.length || this.potentialRocketsHit.length || this.potentialAsteroidsHit) ? this.optimizeDodge() as SetEngineThrustAction[] : []
+        if(this.potentialEnemiesHit.length > 1 && this.spaceship.energy > this.DESIRED_ENERGY_FOR_SPIN_MOVE && this.spaceship.rocketReloadTimerSec == 0 && this.spaceship.laserReloadTimerSec == 0) {
+            console.log("PERFORM SPIN MOVE")
+            const fireActions: Array<FireLaserAction | FireRocketAction> = []
+            if(this.spaceship.laserReloadTimerSec == 0) {
+                fireActions.push(["fireLaser"]);
+                this.lastLaserFireMs = 250;
+            }
+            if(this.spaceship.rocketReloadTimerSec == 0) {
+                fireActions.push(["fireRocket"]);
+                this.lastRocketFireMs = 500;
+            }
+            return [
+                ["setEngineThrust", 0, 5, 0],
+                ...fireActions
+            ]
+        }
 
+        const dodgeFactor = this.optimizeDodge() as SetEngineThrustAction[]
         
-        console.log(dodgeFactor)
+        
+        let fireActions: SpaceshipAction[] = [];
+       
+        if (!dodgeFactor[0]?.[1] && !dodgeFactor[0]?.[2] && !dodgeFactor.length[0]?.[3]) {
+            // Only shoot if no asteroid blocks the shot
+            if (this.spaceship.energy > this.DESIRED_ENERGY) {
+                dodgeFactor.push(["setEngineThrust", 0, 0, 5]);
+                // Fire rockets if the energy threshold is met and conditions are suitable
+                if (this.spaceship.energy > this.ENEGERY_THRESHOLD_ROCKET && this.spaceship.rocketReloadTimerSec === 0 && this.spaceship.rockets > 0) {
+                    fireActions.push(["fireRocket"]);
+                    this.lastRocketFireMs = 500;
+                }
 
+                // Fire lasers based on enemy proximity and aim at predicted enemy position
+                if (this.lastRocketFireMs <= 0 && this.spaceship.energy > this.ENEGERY_THRESHOLD_LASER && this.spaceship.laserReloadTimerSec === 0) {
+                    fireActions.push(["fireLaser"]);
+                    this.lastLaserFireMs = 250;
+                }
+            }
+        }
+
+        console.log(dodgeFactor, this.spaceship.rotation, fireActions)
         
         return [
-            ...dodgeFactor, 
-            ...(fireRocketAction as FireRocketAction[]),
-            ...(fireLaserAction as FireLaserAction[]), 
-           
+            ...dodgeFactor,
+            ...fireActions, 
         ];
     }
 
@@ -166,11 +196,25 @@ class VicecarloansSpaceship implements SpaceshipManager {
         this.height = height;
     }
 
-    computeMove(main: number, left: number, right: number): [number, number, number] {
-        console.log(main, left, right)
-        const futureXMoveRight = this.spaceship.position.x + right * this.MOVE_FACTOR_X + this.MOVE_ADD_X;
-        const futureXMoveLeft = this.spaceship.position.x + left * this.MOVE_FACTOR_X + this.MOVE_ADD_X;
-        const futureYMove = this.spaceship.position.y + main * this.MOVE_FACTOR_Y + this.MOVE_ADD_Y;
+    computeMove(avoidanceVector: {x: number, y: number}): [number, number, number] {
+        let rCo = 0
+        let lCo = 0
+        let mainCo = 0
+        if(this.spaceship.rotation > 0) {
+            // Headdown
+            rCo = avoidanceVector.x < 0 ? Math.abs(avoidanceVector.x * this.MOVE_FACTOR_X) + this.MOVE_ADD_X : 0;
+            lCo = avoidanceVector.x > 0 ? Math.abs(avoidanceVector.x * this.MOVE_FACTOR_X) + this.MOVE_ADD_X : 0;
+            mainCo = Math.abs(avoidanceVector.y * this.MOVE_FACTOR_Y) + this.MOVE_ADD_Y;
+        } else {
+            // Head up
+            rCo = avoidanceVector.x > 0 ? Math.abs(avoidanceVector.x * this.MOVE_FACTOR_X) + this.MOVE_ADD_X : 0;
+            lCo = avoidanceVector.x < 0 ? Math.abs(avoidanceVector.x * this.MOVE_FACTOR_X) + this.MOVE_ADD_X : 0;
+            mainCo = Math.abs(avoidanceVector.y * this.MOVE_FACTOR_Y) + this.MOVE_ADD_Y;
+        }
+        
+        const futureXMoveRight = this.spaceship.rotation > 0 ? this.spaceship.position.x + rCo : this.spaceship.position.x - rCo;
+        const futureXMoveLeft = this.spaceship.rotation > 0 ? this.spaceship.position.x - lCo : this.spaceship.position.x + lCo;
+        const futureYMove = this.spaceship.rotation > 0 ? this.spaceship.position.y + mainCo : this.spaceship.position.y - mainCo;
          // Check if the computed thrust values will cause a collision with any asteroid
         const willCollideWithAsteroidMoveLeft = this.asteroidLocs.some(asteroid => {
             // Move Right?
@@ -208,12 +252,36 @@ class VicecarloansSpaceship implements SpaceshipManager {
         console.log("RIGHT", willCollideWithAsteroidMoveRight)
         console.log("Y", willCollideWithAsteroidMoveY)
 
-        const l = willCollideWithAsteroidMoveLeft || willCollideWithShipMoveLeft ? 0: left
-        const r = willCollideWithAsteroidMoveRight || willCollideWithShipMoveRight? 0: right
-        const lThrust = l != 0 ? l * this.MOVE_FACTOR_X + this.MOVE_ADD_X : 0;
-        const rThrust = r != 0 ? r * this.MOVE_FACTOR_X + this.MOVE_ADD_X : 0; 
-        const m = willCollideWithAsteroidMoveY || willCollideWithShipMoveY ? 0: main;
-        const mThrust = m != 0 ? m * this.MOVE_FACTOR_Y + this.MOVE_ADD_Y : 0;
+        console.log("LEFT SHIP", willCollideWithShipMoveLeft)
+        console.log("RIGHT SHIP", willCollideWithShipMoveRight)
+        console.log("Y SHIP", willCollideWithShipMoveY)
+
+        let l = lCo
+        if (willCollideWithAsteroidMoveLeft || willCollideWithShipMoveLeft) {
+            if (this.spaceship.rotation < 0) {
+                // Head up
+                l = lCo
+            } else {
+                // Head down
+                l = 0
+            }
+        }
+
+        
+        let r = rCo
+        if (willCollideWithAsteroidMoveRight || willCollideWithShipMoveRight) {
+            if (this.spaceship.rotation < 0) {
+                // Head up
+                r = rCo
+            } else {
+                // Head down
+                r = 0
+            }
+        }
+        const lThrust = l != 0  ? l : 0;
+        const rThrust = r != 0  ? r : 0; 
+        const m = willCollideWithAsteroidMoveY || willCollideWithShipMoveY ? 0: mainCo;
+        const mThrust = m != 0 ? m : 0;
         // return thurst != 0 ? thurst * this.MOVE_FACTOR + 10 : 0;
         return [mThrust, lThrust, rThrust]
     }
@@ -223,7 +291,9 @@ class VicecarloansSpaceship implements SpaceshipManager {
         const addAvoidanceVector = (threat: any, weightFactor: number = 1) => {
             const dx = this.spaceship.position.x - threat.x;
             const dy = this.spaceship.position.y - threat.y;
+            console.log(dx, dy)
             const distance = calculateDistance(this.spaceship.position.x, this.spaceship.position.y, threat.x, threat.y);
+            console.log(distance)
             if (distance === 0) return; // Avoid division by zero
             const normalizedDx = dx / distance;
             const normalizedDy = dy / distance;
@@ -231,23 +301,23 @@ class VicecarloansSpaceship implements SpaceshipManager {
             avoidanceVector.y += normalizedDy;
         };
 
-        console.log(this.potentialAsteroidsHit)
-
         
         this.potentialLasersHit.forEach(laser => addAvoidanceVector({x: laser.collider.position.x, y: laser.collider.position.y}));
         this.potentialRocketsHit.forEach(rocket => addAvoidanceVector({x: rocket.collider.position.x, y: rocket.collider.position.y}));
-        this.potentialEnemiesHit.forEach(enemy => addAvoidanceVector({x: enemy.collider.position.x, y: enemy.collider.position.y}));
-        this.potentialAsteroidsHit.forEach(asteroid => addAvoidanceVector({x: asteroid.collider.position.x, y: asteroid.collider.position.y}));
-        
+        this.enemies.forEach(enemy => addAvoidanceVector({x: enemy.collider.position.x, y: enemy.collider.position.y}));
+        this.potentialAsteroidsHit.forEach(asteroid => addAvoidanceVector({x: asteroid.collider.position.x, y: asteroid.collider.position.y}, 2));
+
+
+
         const mainThrust = Math.min(Math.max(avoidanceVector.y, -1), 1);
         const leftThrust = Math.min(Math.max(-avoidanceVector.x, -1), 1);
         const rightThrust = Math.min(Math.max(avoidanceVector.x, -1), 1);
 
-        const [main, left, right] = this.computeMove(mainThrust, leftThrust, rightThrust);
+        const [main, left, right] = this.computeMove(avoidanceVector);
        
       
         
-        return (main == 0 && left == 0 && right == 0) ? [] : [["setEngineThrust", main, left, right]];
+        return [["setEngineThrust", main, left, right]];
     }
 }
 
