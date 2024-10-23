@@ -25,6 +25,11 @@
   border-radius: calc(var(--toggle-height) / 2);
 }
 
+.toggle--disabled .toggle__slider {
+  background-color: var(--color-disabled-bg);
+  cursor: default;
+}
+
 .toggle__slider:before {
   position: absolute;
   content: "";
@@ -38,8 +43,16 @@
   border-radius: 50%
 }
 
+.toggle--disabled .toggle__slider:before {
+  background-color: var(--color-disabled-fg);
+}
+
 .toggle input:checked + .toggle__slider {
   background-color: var(--toggle-color-primary);
+}
+
+.toggle--disabled input:checked + .toggle__slider {
+  background-color: var(--color-disabled-bg);
 }
 
 .toggle input:focus + .toggle__slider {

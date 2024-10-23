@@ -31,6 +31,15 @@ func (manager *GameManager) HasEnded(deltaTimeMs float64) bool {
 	return manager.destroyedShips >= len(manager.spaceShips)-1
 }
 
+func (manager *GameManager) GetGameObjectByID(id int64) GameObject {
+	for _, gameObject := range manager.gameObjects {
+		if gameObject.ID() == id {
+			return gameObject
+		}
+	}
+	return nil
+}
+
 func (manager *GameManager) GetGameObjectByIndex(index int) GameObject {
 	return manager.gameObjects[index]
 }

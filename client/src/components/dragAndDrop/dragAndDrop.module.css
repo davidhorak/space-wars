@@ -1,0 +1,71 @@
+.drag-and-drop__upload {
+    border: 1px var(--color-primary) dashed;
+    background: var(--color-bg-default);
+    color: var(--color-fg-default);
+    transition: background-color 0.2s ease-in-out;
+}
+.drag-and-drop__upload:focus {
+    outline: none;
+}
+.drag-and-drop__processing {
+    box-sizing: border-box;
+    border: 1px var(--color-primary-accent) solid;
+}
+
+.drag-and-drop__upload:hover, .drag-and-drop--highlighted .drag-and-drop__upload {
+    border-style: solid;
+    background: var(--color-primary-accent);
+}
+
+.drag-and-drop--disabled .drag-and-drop__upload {
+    opacity: .4;
+    cursor: default;
+}
+
+.drag-and-drop--disabled .drag-and-drop__upload:hover, .drag-and-drop--disabled.drag-and-drop--highlighted .drag-and-drop__upload {
+    border-style: dashed;
+    background: var(--color-bg-default);
+}
+
+.drag-and-drop__preview img {
+    max-width: 100%;
+}
+
+.drag-and-drop svg {
+    color: var(--color-primary);
+}
+
+.drag-and-drop__select svg {
+    color: var(--color-fg-default);
+}
+
+.drag-and-drop__desc__icon {
+    line-height: 0;
+    background-color: var(--color-fg-default);
+}
+.drag-and-drop__desc__icon > svg {
+    color: var(--color-primary);
+}
+
+.drag-and-drop__legend {
+    transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.drag-and-drop__legend--overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    opacity: 0;
+    background-color: transparent;
+}
+
+.drag-and-drop__upload:hover .drag-and-drop__legend--overlay, .drag-and-drop--highlighted .drag-and-drop__legend--overlay {
+    background-color: var(--color-primary-accent);
+    opacity: 1;
+}
+
+.drag-and-drop--disabled .drag-and-drop__upload:hover .drag-and-drop__legend--overlay, .drag-and-drop--disabled.drag-and-drop--highlighted .drag-and-drop__legend--overlay {
+    opacity: 0;
+}

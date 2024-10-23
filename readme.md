@@ -3,10 +3,12 @@
 Players take on the role of elite engineers tasked with programming AI bots to pilot
 futuristic spaceships in a high-stakes interstellar arena.
 
+[![CI](https://github.com/davidhorak/space-wars/actions/workflows/ci.yml/badge.svg)](https://github.com/davidhorak/space-wars/actions/workflows/ci.yml)
+
 **The goal is simple**: code your bot to outmaneuver, outgun, and outsmart the competition,
 becoming the last ship standing in a relentless battle for supremacy.
 
-https://github.com/user-attachments/assets/f78ffe1a-0e60-4d07-b52e-3ddbcc31a05e
+https://github.com/user-attachments/assets/bf9362c9-e9b1-4e22-9cf9-fa058dab5283
 
 ### Game/Simulation Features:
 
@@ -23,12 +25,12 @@ https://github.com/user-attachments/assets/f78ffe1a-0e60-4d07-b52e-3ddbcc31a05e
 - **Learning and Iteration**: After each match, players can analyze their bots' performance, tweak their code,
   and refine their strategies, fostering a cycle of learning and improvement.
 
-![space-wars_screenshot](https://github.com/user-attachments/assets/802b0324-44bc-4659-8c83-2500029e43ba){: .mx-auto}
+![space-wars_screenshot](https://github.com/user-attachments/assets/ec032efd-be8e-4bb5-8b98-dacee57fdbe6){: .mx-auto}
 
 In Space Wars, intelligence and innovation are your greatest weapons. Code wisely, pilot your ships with precision,
 and claim your place among the stars!
 
-> Updated: Sep 23, 2024
+> Updated: Oct 10, 2024
 
 > Notes:
 >
@@ -52,9 +54,9 @@ and claim your place among the stars!
 
 - Each engine has its own throttle, from **0** to **100**.
 - The main thruster consumes **12.5** energy per second.
-- The navigation thrusters consume **6.66** energy per second.
+- The navigation thrusters consume **8.33** energy per second.
 - The trust from all engines is added together to get the total trust.
-- The side thrusters are **2** times weaker than the main thruster.
+- The side thrusters have **80%** of the power of the main thruster.
 - The trust is applied in the direction of the spaceship.
 - Using the engines consumes energy, x/s for the main thruster, and y/s for the navigation thrusters.
 - The maximum speed is **192** m/s.
@@ -163,6 +165,14 @@ Windows:
 powershell -Command { $env:GOOS="js"; $env:GOARCH="wasm"; go build -o ./client/public/space-wars.wasm }
 ```
 
+#### How to Build the Kernel WASM Module with Docker (without installing Go)
+
+```sh
+source ./bin/docker-build-kernel.sh
+```
+
+See [bin/docker-build-kernel.sh](bin/docker-build-kernel.sh) for more information.
+
 ### How to run the kernel tests with full coverage
 
 Linux/MacOS:
@@ -183,17 +193,28 @@ powershell -Command { go test -coverprofile="coverage.out" ./...; go tool cover 
 
 - Go to [client](client) and run `yarn dev` to start the frontend.
 
+### How to run the kernel without the UI client
+
+See [run-kernel-without-ui](_guide/run-kernel-without-ui/readme.md) for more information.
+
+---
+### Docker
+```sh
+docker-compose run compile
+docker-compose up
+```
+
 ---
 
 ### TODO
 
 - [x] Add CI
-- [ ] Test the game and balance the game, mainly the truster physics
+- [x] Test the game and balance the game, mainly the truster physics
 - [x] Add all kernel tests
 - [ ] Optimize the performance of the game
-- [ ] Polish the game tiles
-- [ ] Allow to load the game state form a json string
-- [ ] Add a guide how to run the kernel without the UI client.
+- [x] Polish the game tiles
+- [x] Allow to load the game state form a json string
+- [x] Add a guide how to run the kernel without the UI client.
 - [ ] [Spaceships TODOs](spaceships/readme.md)
 
 ---

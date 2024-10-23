@@ -13,16 +13,12 @@ import { drawExplosion } from "./render/drawExplosion";
 import { drawLaser } from "./render/drawLaser";
 import { drawRocket } from "./render/drawRocket";
 import { drawSpaceship } from "./render/drawSpaceship";
-import { getScoreboard } from "./utils";
+import { getScoreboard, getSpaceship } from "./utils";
 import { getCanvas, getStartLocations } from "./utils";
 import type { ScoreboardEntry } from "./utils";
 import type { Vector2 } from "./utils";
 
-import type {
-  GameState,
-  Spaceship,
-  SpaceshipManager,
-} from "../../../spaceships";
+import type { GameState, SpaceshipManager } from "../../../spaceships";
 import spaceshipFactories, {
   isAsteroid,
   isExplosion,
@@ -46,8 +42,10 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
   }
 
   const canvas = getCanvas(canvasId);
-  canvas.width = width;
-  canvas.height = height;
+  const baseWidth = width;
+  const baseHeight = height;
+  canvas.width = baseWidth;
+  canvas.height = baseHeight;
 
   const context = canvas.getContext("2d");
   if (context === null) {
@@ -59,6 +57,7 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
   const sprites = createSprites();
 
   let gameState: GameState | undefined;
+  let loadedRawGameState: string | undefined;
   let elapsedTimeMs = 0;
   let logSize = 0;
 
@@ -76,32 +75,59 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
 
   const start = () => {
     spaceWars.start();
-    spaceships.forEach((spaceship) => spaceship.onStart(width, height));
     gameState = spaceWars.state();
-    onStateChanged.broadcast("running");
-    onLogsChanged.broadcast([]);
+    spaceships.forEach((spaceshipManager) =>
+      spaceshipManager.onStart(
+        getSpaceship(
+          spaceshipManager.name,
+          gameState?.gameObjects ?? [],
+          spaceshipNameIndexMap
+        ),
+        width,
+        height
+      )
+    );
+    onStateChanged.broadcast(gameState.status);
+    onLogsChanged.broadcast(reverse(gameState.logs));
     onScoreboardChanged.broadcast(getScoreboard(gameState.gameObjects));
   };
 
   const reset = (startLocations: Vector2[]) => {
     elapsedTimeMs = 0;
     logSize = 0;
-    startLocations = shuffle(startLocations);
-    spaceships.forEach((spaceship, index) => {
-      spaceWars.action(
-        "setStartPosition",
-        spaceship.name,
-        startLocations[index].x,
-        startLocations[index].y,
-        Math.random() * Math.PI * 2
-      );
-    });
-    spaceWars.reset();
-    spaceWars.start();
-    spaceships.forEach((spaceship) => spaceship.onReset());
+
+    if (isUndefined(loadedRawGameState)) {
+      startLocations = shuffle(startLocations);
+      spaceships.forEach((spaceship, index) => {
+        spaceWars.action(
+          "setStartPosition",
+          spaceship.name,
+          startLocations[index].x,
+          startLocations[index].y,
+          Math.random() * Math.PI * 2
+        );
+      });
+      spaceWars.reset();
+      spaceWars.start();
+    } else {
+      spaceWars.fromState(loadedRawGameState);
+    }
+
+    spaceshipNameIndexMap.clear();
     gameState = spaceWars.state();
-    onStateChanged.broadcast("running");
-    onLogsChanged.broadcast([]);
+    spaceships.forEach((spaceshipManager) =>
+      spaceshipManager.onReset(
+        getSpaceship(
+          spaceshipManager.name,
+          gameState?.gameObjects ?? [],
+          spaceshipNameIndexMap
+        ),
+        width,
+        height
+      )
+    );
+    onStateChanged.broadcast(gameState.status);
+    onLogsChanged.broadcast(reverse(gameState.logs));
     onScoreboardChanged.broadcast(getScoreboard(gameState.gameObjects));
   };
 
@@ -116,39 +142,30 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
       spaceWars.tick(deltaTimeMs);
       gameState = spaceWars.state();
 
-      for (const spaceship of spaceships) {
-        let selfIndex = spaceshipNameIndexMap.get(spaceship.name);
-        if (isUndefined(selfIndex)) {
-          selfIndex = gameState.gameObjects.findIndex(
-            (gameObject) =>
-              isSpaceship(gameObject) && gameObject.name === spaceship.name
-          );
-          if (isUndefined(selfIndex)) {
-            console.error(
-              `spaceship ${spaceship.name} not found in the game state`
-            );
-            continue;
-          }
-          spaceshipNameIndexMap.set(spaceship.name, selfIndex);
-        }
+      for (const spaceshipManager of spaceships) {
+        const spaceship = getSpaceship(
+          spaceshipManager.name,
+          gameState.gameObjects,
+          spaceshipNameIndexMap
+        );
 
-        const actions = spaceship.onUpdate({
+        const actions = spaceshipManager.onUpdate({
           deltaTimeMs,
           gameObjects: gameState.gameObjects,
-          spaceship: gameState.gameObjects[selfIndex] as Spaceship,
+          spaceship,
         });
 
         for (const action of actions) {
           if (isSetEngineThrustAction(action)) {
             spaceWars.action(
               action[0],
-              spaceship.name,
+              spaceshipManager.name,
               action[1],
               action[2],
               action[3]
             );
           } else {
-            spaceWars.action(action[0], spaceship.name);
+            spaceWars.action(action[0], spaceshipManager.name);
           }
         }
       }
@@ -188,7 +205,7 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
           drawAsteroid({
             render,
             asteroid: gameObject,
-            sprite: tilesMain.getTileByName(`asteroid_${i % 2}`),
+            sprite: tilesMain.getTileByName(`asteroid_${i % 3}`),
             elapsedTimeMs: elapsedTimeMs * (i % 2 == 0 ? 1 : -1),
             showCollider,
           });
@@ -249,6 +266,7 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
   tilesMain.mapTiles([
     ["asteroid_0", 0, 0],
     ["asteroid_1", 0, 1],
+    ["asteroid_2", 0, 2],
     ["spaceship", 1, 0],
     ["laser", 8, 3, 0.5],
     ["rocket", 8, 2, 0.5],
@@ -346,6 +364,31 @@ export const engine = async ({ canvasId, width, height, fps }: EngineProps) => {
     showEnergy: (state: boolean) => (showEnergy = state),
     showHealth: (state: boolean) => (showHealth = state),
     showNames: (state: boolean) => (showNames = state),
+    state: (): GameState | undefined => gameState,
+    setStartState: (rawState: string) => {
+      const state = JSON.parse(rawState) as GameState;
+      for (const go of state.gameObjects.filter(
+        (go) => go.type == "spaceship"
+      )) {
+        const spaceship = spaceships.find(
+          (spaceship) => spaceship.name == go.name
+        );
+        if (!spaceship) {
+          throw new Error(`spaceship ${go.name} not found`);
+        }
+      }
+
+      loadedRawGameState = rawState;
+      canvas.width = state.size.width;
+      canvas.height = state.size.height;
+      reset(startLocations);
+    },
+    removeStartState: () => {
+      loadedRawGameState = undefined;
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+      reset(startLocations);
+    },
   };
 };
 

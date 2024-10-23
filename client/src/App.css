@@ -61,6 +61,9 @@ html, body, #root {
 .d-inline-block {
   display: inline-block;
 }
+.d-none {
+  display: none;
+}
 
 /* Position */
 .position-relative {
@@ -68,6 +71,9 @@ html, body, #root {
 }
 .position-absolute {
   position: absolute;
+}
+.position-fixed {
+  position: fixed;
 }
 .top-0 {
   top: 0;
@@ -267,4 +273,28 @@ h5, .h5 {
 h6, .h6 {
   font-size: calc(18/var(--base-font-size) * 1rem);
   line-height: calc(26/var(--base-font-size) * 1rem);
+}
+
+/* link */
+a {
+  color: var(--color-link);
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+a:hover {
+  color: var(--color-link-hover);
+}
+
+/* Button */
+.button-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+  line-height: 0;
+  /* padding: 6px; */
+}
+
+.button-icon:hover {
+  color: var(--color-primary-accent);
 }

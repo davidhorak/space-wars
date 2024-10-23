@@ -1,3 +1,4 @@
+import type { Explosion } from "../../../../spaceships/types";
 import { Render } from "./render";
 import { AnimatedSprite } from "./Sprite";
 

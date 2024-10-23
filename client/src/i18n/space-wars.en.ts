@@ -18,6 +18,18 @@ export default {
         pause: "Pause",
         resume: "Resume",
         step: "Step",
+        saveState: "Save State",
+      },
+      load: {
+        title: "Load State:",
+        loadedTitle: "Loaded State:",
+        drop: "Drop JSON file here.",
+        processing: "Processing, please wait",
+        select: {
+          label: "Choose JSON file",
+          title: "Click to choose and select JSON file from your computer.",
+        },
+        remove: "Remove state",
       },
       scoreboard: {
         title: "Scoreboard:",
@@ -45,6 +57,9 @@ export default {
       subtitle: "This page got lost in conversation.",
       body: "Not to worry. <1>Click here</1> to go back and find pros in your area.",
     },
+  },
+  modal: {
+    ok: "Ok",
   },
   error: {
     title: "An error occurred",

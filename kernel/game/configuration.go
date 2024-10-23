@@ -21,10 +21,10 @@ const (
 	// This is tuned to reach almost below 10% of max velocity in 10 seconds
 	// without any thrust
 	DragCoefficient            = 0.2385 * MaxVelocitySec
-	SideThrustPowerCoefficient = 0.5 // Relative to the main thrust
+	SideThrustPowerCoefficient = 0.80 // Relative to the main thrust
 
 	EnergyConsumptionMainThrustSec = MaxEnergy / 8
-	EnergyConsumptionSideThrustSec = MaxEnergy / 15
+	EnergyConsumptionSideThrustSec = MaxEnergy / 12
 	EnergyRechargeRateSec          = MaxEnergy / 8
 	ShipExplosionRadius            = 30
 	ShipExplosionDurationSec       = 1

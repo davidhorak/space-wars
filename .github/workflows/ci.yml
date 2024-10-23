@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "master" ]
 
 jobs:
   kernel-tests:
@@ -24,7 +24,6 @@ jobs:
 
     - name: Build kernel WASM
       run: |
-        cd kernel
         GOOS=js GOARCH=wasm go build -o space-wars.wasm
 
   client-tests:
@@ -41,6 +40,11 @@ jobs:
       run: |
         cd client
         yarn install
+
+    - name: Run client tests
+      run: |
+        cd client
+        yarn test
 
     - name: Build client
       run: |

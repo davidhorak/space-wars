@@ -115,5 +115,27 @@ func (projectile *Projectile) OnCollision(other GameObject, gameManager *GameMan
 }
 
 func (projectile *Projectile) Serialize() map[string]interface{} {
-	return map[string]interface{}{}
+	projectileType := "laser"
+	if projectile.damageType == DamageTypeRocket {
+		projectileType = "rocket"
+	}
+
+	return map[string]interface{}{
+		"type":    projectileType,
+		"id":      projectile.id,
+		"enabled": projectile.enabled,
+		"position": map[string]interface{}{
+			"x": projectile.position.X,
+			"y": projectile.position.Y,
+		},
+		"rotation": projectile.rotation,
+		"velocity": map[string]interface{}{
+			"x": projectile.velocity.X,
+			"y": projectile.velocity.Y,
+		},
+		"lifespanSec": projectile.lifespanSec,
+		"damage":      projectile.damage,
+		"owner":       projectile.owner.ID(),
+		"collider":    projectile.collider.Serialize(),
+	}
 }

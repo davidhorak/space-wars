@@ -9,6 +9,7 @@ import {
 import { rotateVector2, translateVector2, Vector2 } from "../utils";
 import { Render } from "./render";
 import { AnimatedSprite, Sprite } from "./Sprite";
+import type { Spaceship } from "../../../../spaceships/types";
 
 const MAIN_THRUST_SIZE = 24;
 const SIDE_THRUST_SIZE = 18;
@@ -30,7 +31,7 @@ export const drawSpaceship = ({
   elapsedTimeMs,
 }: {
   render: Render;
-  spaceship: SpaceShip;
+  spaceship: Spaceship;
   sprite: Sprite;
   thrustSprite: AnimatedSprite;
   showCollider: boolean;

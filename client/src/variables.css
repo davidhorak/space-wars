@@ -1,15 +1,21 @@
 :root {
   --color-primary: #d1b921;
+  --color-primary-accent: #b39d0f;
 
   --color-fg-default: #f2f2f2;
   --color-bg-default: #222222;
 
   --color-button-fg-primary: var(--color-fg-default);
   --color-button-bg-primary: var(--color-primary);
-  --color-button-bg-primary-hover: #b39d0f;
+  --color-button-bg-primary-hover: var(--color-primary-accent);
 
   --color-disabled-bg: #666666;
   --color-disabled-fg: #999999;
+
+  --color-link: var(--color-primary);
+  --color-link-hover: var(--color-primary-accent);
+
+  --color-modal-bg: rgba(34, 34, 34, 0.5);
 
   --color-palette-0: hsl(56, 100%, 80%);
   --color-palette-1: hsl(27, 100%, 80%);

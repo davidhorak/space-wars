@@ -21,8 +21,8 @@ export type SpaceshipManagerFactory = () => Promise<SpaceshipManager>;
 export interface SpaceshipManager {
   name: string;
   onUpdate(state: SpaceState): SpaceshipAction[];
-  onStart(width: number, height: number): void;
-  onReset(): void;
+  onStart(spaceship: Spaceship, width: number, height: number): void;
+  onReset(spaceship: Spaceship, width: number, height: number): void;
 }
 ```
 
@@ -39,11 +39,16 @@ This function is called every game tick, contains the current game state and exp
 #### onStart
 This function is called when the game starts, it can be used to initialize any resources needed by the spaceship. This is a good place to set up any initial conditions or configurations for your spaceship. 
 
+- **spaceship**: The spaceship object, contains the spaceship's current state. This includes its position, velocity, and other relevant properties.
 - **width**: The width of the game area.
 - **height**: The height of the game area.
 
 #### onReset
 This function is called when the game resets, it can be used to reset any resources needed by the spaceship. This is useful for restarting the game or resetting the spaceship to its initial state.
+
+- **spaceship**: The spaceship object, contains the spaceship's current state. This includes its position, velocity, and other relevant properties.
+- **width**: The width of the game area.
+- **height**: The height of the game area.
 
 ## Spaceship Actions
 ### Set Engine Thrust
@@ -76,7 +81,7 @@ Fires a rocket from the spaceship. This action can be used to attack other space
 ---
 
 ## Notes
-`_examples` folder contains the examples and tests of the spaceships that you can use as a template to create your own spaceship manager.
+`_samples` folder contains the examples and tests of the spaceships that you can use as a template to create your own spaceship manager.
 
 ## TODO
 - [ ] Add more examples

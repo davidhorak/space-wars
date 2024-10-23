@@ -68,8 +68,8 @@ const dummy = (name: string): SpaceshipManager => {
   return {
     name,
     onUpdate: onUpdate,
-    onStart: function () {
-      this.onReset();
+    onStart: function (spaceship, width, height) {
+      this.onReset(spaceship, width, height);
     },
     onReset: () => {
       attacking = true;
@@ -92,5 +92,7 @@ const names = [
   "Deathwatch",
 ];
 
+let index = -1;
+
 export const createDummy = (): SpaceshipManagerFactory => () =>
-  Promise.resolve(dummy(names[Math.floor(Math.random() * names.length)]));
+  Promise.resolve(dummy(names[++index]));
