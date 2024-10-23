@@ -7,6 +7,7 @@ import { createDummy } from "./_samples/dummy";
 import { createRocinante } from "./gordon-tactable/rocinante";
 import { initShip as initVicecarloans } from "./vicecarloans";
 import { createAmazingLilySpaceship } from "./lily";
+import { createJustin } from "./justin";
 // import {
 //   createEngineTester,
 //   createLaserTester,
@@ -42,7 +43,7 @@ const spaceshipFactories: SpaceshipManagerFactory[] = [
     // createDummy(),
     // createDummy(),
     createDummy(),
-    createDummy(),
+    createJustin(),
     createRocinante("Rocinante"),
     initVicecarloans(),
     createAmazingLilySpaceship(),
