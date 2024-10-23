@@ -10,6 +10,7 @@ import { createDummy } from "./_samples/dummy";
 //   createRocketTester,
 // } from "./_samples/tester";
 
+import { initShip as initVicecarloanShip } from "./vicecarloans";
 export {
   isAsteroid,
   isExplosion,
@@ -40,6 +41,7 @@ const spaceshipFactories: SpaceshipManagerFactory[] = [
     createDummy(),
     createDummy(),
     createDummy(),
+    initVicecarloanShip()
   //   createLaserTester("Laser Tester 1"),
   //   createLaserTester("Laser Tester 2"),
   //   createRocketTester("Rocket Tester 1"),
