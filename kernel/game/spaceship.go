@@ -266,11 +266,12 @@ func (ship *Spaceship) gunManagement(deltaTimeSec float64) {
 }
 
 func (ship *Spaceship) energyManagement(deltaTimeSec float64) {
-	if ship.engine.mainThrust == 0 && ship.engine.leftThrust == 0 && ship.engine.rightThrust == 0 {
-		ship.energy += deltaTimeSec * EnergyRechargeRateSec
-		ship.energy = math.Min(ship.energy, MaxEnergy)
-		return
-	}
+	// TODO: Investigate if this is needed
+	// if ship.engine.mainThrust == 0 && ship.engine.leftThrust == 0 && ship.engine.rightThrust == 0 {
+	ship.energy += deltaTimeSec * EnergyRechargeRateSec
+	ship.energy = math.Min(ship.energy, MaxEnergy)
+	// 	return
+	// }
 
 	ship.energy -= ship.engine.mainThrust / MaxThrust * deltaTimeSec * EnergyConsumptionMainThrustSec
 	ship.energy -= ship.engine.leftThrust / MaxThrust * deltaTimeSec * EnergyConsumptionSideThrustSec
