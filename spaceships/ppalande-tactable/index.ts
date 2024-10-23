@@ -11,6 +11,10 @@ import type {
 
 const ppalandeTactable = (name: string): SpaceshipManager => {
   let lastRocketFireMs = 0;
+  let isRecharging = false;
+
+  const MIN_ENERGY_FOR_ACTIONS = 30;
+  const RECHARGE_THRESHOLD = 70;
 
   const findNearestSpaceship = (self: Spaceship, gameObjects: GameObject[]): Spaceship | null => {
     let nearestDistance = Infinity;
@@ -43,6 +47,7 @@ const ppalandeTactable = (name: string): SpaceshipManager => {
       }
     });
 
+    const avoidAngle = nearestAsteroid.position.angle + Math.PI; // Turn 180 degrees to avoid the asteroid
     return nearestAsteroid;
   };
 
@@ -80,6 +85,17 @@ const ppalandeTactable = (name: string): SpaceshipManager => {
     if (lastRocketFireMs > 0) {
       lastRocketFireMs -= deltaTimeMs;
       if (lastRocketFireMs <= 0) lastRocketFireMs = 0;
+    }
+
+    // Energy management
+    if (self.energy <= MIN_ENERGY_FOR_ACTIONS) {
+      isRecharging = true;
+    } else if (self.energy >= RECHARGE_THRESHOLD) {
+      isRecharging = false;
+    }
+
+    if (isRecharging) {
+      return actions; // Return empty actions to recharge
     }
 
     const nearestSpaceship = findNearestSpaceship(self, gameObjects);
@@ -131,12 +147,12 @@ const ppalandeTactable = (name: string): SpaceshipManager => {
       const distance = Math.hypot(nearestSpaceship.position.x - self.position.x, nearestSpaceship.position.y - self.position.y);
       
       if (Math.random() < 0.5) {  // 50% probability to choose between laser and rocket
-        if (distance < 200 && self.rocketReloadTimerSec === 0 && self.rockets > 0) {
+        if (distance < 200 && self.rocketReloadTimerSec === 0 && self.rockets > 0 && self.energy >= 20) {
           actions.push(["fireRocket"]);
           lastRocketFireMs = 500;
         }
       } else {
-        if (distance < 150 && self.laserReloadTimerSec === 0) {
+        if (distance < 150 && self.laserReloadTimerSec === 0 && self.energy >= 10) {
           actions.push(["fireLaser"]);
         }
       }
@@ -151,6 +167,7 @@ const ppalandeTactable = (name: string): SpaceshipManager => {
     onStart: () => {},
     onReset: () => {
       lastRocketFireMs = 0;
+      isRecharging = false;
     },
   };
 };
