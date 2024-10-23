@@ -198,6 +198,13 @@ powershell -Command { go test -coverprofile="coverage.out" ./...; go tool cover 
 See [run-kernel-without-ui](_guide/run-kernel-without-ui/readme.md) for more information.
 
 ---
+### Docker
+```sh
+docker-compose run compile
+docker-compose up
+```
+
+---
 
 ### TODO
 
