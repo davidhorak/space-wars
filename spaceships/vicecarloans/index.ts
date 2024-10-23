@@ -27,7 +27,7 @@ const isAsteroidBlockingShot = (ship: Spaceship, enemy: Spaceship, asteroids: As
 
 
 class VicecarloansSpaceship implements SpaceshipManager {
-    name: string = "vicecarloans"
+    name: string = "vicecarloans-MAGA"
     private spaceship: Spaceship;
     private width: number;
     private height: number;
@@ -36,6 +36,7 @@ class VicecarloansSpaceship implements SpaceshipManager {
     private isRecovering = false;
     private lastRocketFireMs = 0;
     private lastLaserFireMs = 0;
+    private lastDodgeMs = 0;
     // Config
     private ENEGERY_THRESHOLD = 10;
     private DESIRED_ENERGY = 40;
@@ -44,12 +45,12 @@ class VicecarloansSpaceship implements SpaceshipManager {
     private ENEGERY_THRESHOLD_ROCKET = 25;
     private DODGE_THRESHOLD_LASER = 200;
     private DODGE_THRESHOLD_ROCKET = 300; 
-    private DODGE_THRESHOLD_ENEMIES = 300; 
-    private DODGE_THRESHOLD_ASTEROID = 30; 
-    private MOVE_FACTOR_Y = 30;
-    private MOVE_ADD_Y = 30;
-    private MOVE_FACTOR_X = 30;
-    private MOVE_ADD_X = 20;
+    private DODGE_THRESHOLD_ENEMIES = 100; 
+    private DODGE_THRESHOLD_ASTEROID = 100; 
+    private MOVE_FACTOR_Y = 1;
+    private MOVE_ADD_Y = 10;
+    private MOVE_FACTOR_X = 1;
+    private MOVE_ADD_X = 5;
     // Array of objects
     private asteroidLocs: Array<Asteroid> = [];
     private potentialAsteroidsHit: Array<Asteroid> = [];
@@ -130,58 +131,94 @@ class VicecarloansSpaceship implements SpaceshipManager {
               this.lastLaserFireMs = 0;
             }
         }
+        if (this.lastDodgeMs > 0) {
+            this.lastDodgeMs -= state.deltaTimeMs;
+            if (this.lastDodgeMs <= 0) {
+              this.lastDodgeMs = 0;
+            }
+        }
 
-        if(this.potentialEnemiesHit.length > 1 && this.spaceship.energy > this.DESIRED_ENERGY_FOR_SPIN_MOVE && this.spaceship.rocketReloadTimerSec == 0 && this.spaceship.laserReloadTimerSec == 0) {
+        if(this.potentialEnemiesHit.length > 1 && this.spaceship.energy > this.DESIRED_ENERGY_FOR_SPIN_MOVE) {
             console.log("PERFORM SPIN MOVE")
             const fireActions: Array<FireLaserAction | FireRocketAction> = []
-            if(this.spaceship.laserReloadTimerSec == 0) {
+            if(this.spaceship.laserReloadTimerSec == 0 && this.lastRocketFireMs <= 0 && this.lastLaserFireMs <= 0) {
                 fireActions.push(["fireLaser"]);
-                this.lastLaserFireMs = 250;
+                this.lastLaserFireMs = 400;
             }
-            if(this.spaceship.rocketReloadTimerSec == 0) {
+            if(this.spaceship.rocketReloadTimerSec == 0 && this.lastRocketFireMs <= 0) {
                 fireActions.push(["fireRocket"]);
                 this.lastRocketFireMs = 500;
             }
             return [
-                ["setEngineThrust", 0, 5, 0],
+                ["setEngineThrust", 0, 1, 0],
                 ...fireActions
             ]
         }
 
-        const dodgeFactor = this.optimizeDodge() as SetEngineThrustAction[]
+        
+        let actions: SpaceshipAction[] = [];
         
         
-        let fireActions: SpaceshipAction[] = [];
-       
-        if (!dodgeFactor[0]?.[1] && !dodgeFactor[0]?.[2] && !dodgeFactor.length[0]?.[3]) {
-            // Only shoot if no asteroid blocks the shot
-            if (this.spaceship.energy > this.DESIRED_ENERGY) {
-                dodgeFactor.push(["setEngineThrust", 0, 0, 5]);
-                // Fire rockets if the energy threshold is met and conditions are suitable
-                if (this.spaceship.energy > this.ENEGERY_THRESHOLD_ROCKET && this.spaceship.rocketReloadTimerSec === 0 && this.spaceship.rockets > 0) {
-                    fireActions.push(["fireRocket"]);
-                    this.lastRocketFireMs = 500;
-                }
-
-                // Fire lasers based on enemy proximity and aim at predicted enemy position
-                if (this.lastRocketFireMs <= 0 && this.spaceship.energy > this.ENEGERY_THRESHOLD_LASER && this.spaceship.laserReloadTimerSec === 0) {
-                    fireActions.push(["fireLaser"]);
-                    this.lastLaserFireMs = 250;
-                }
+        if (this.spaceship.energy >= this.DESIRED_ENERGY) {
+            actions.push(["setEngineThrust", 0, 1, 0]);
+            // Fire lasers based on enemy proximity and aim at predicted enemy position 
+            if (this.spaceship.laserReloadTimerSec === 0 && this.lastRocketFireMs <= 0) {
+                actions.push(["fireLaser"]);
+                this.lastLaserFireMs = 400;
             }
+            // Fire rockets if the energy threshold is met and conditions are suitable
+            if (this.spaceship.rocketReloadTimerSec === 0 && this.spaceship.rockets > 0 && this.lastRocketFireMs <= 0 && this.lastLaserFireMs <= 0) {
+                actions.push(["fireRocket"]);
+                this.lastRocketFireMs = 500;
+            }
+
+            
         }
 
-        console.log(dodgeFactor, this.spaceship.rotation, fireActions)
+   
+        const dodgeActions = this.optimizeDodge()
+
+        if(this.spaceship.energy - this.computeEnergyConsumption(actions) >= this.computeEnergyConsumption(dodgeActions)) {
+            actions.push(...dodgeActions);
+        }
+
+
+        if(this.computeEnergyConsumption(actions) > this.spaceship.energy) {
+            console.log("NOT ENOUGH ENERGY")
+            return []
+        } 
+        console.log("ENERGY", this.spaceship.energy)
+        console.log("ACTIONS", actions)
+        return actions
         
-        return [
-            ...dodgeFactor,
-            ...fireActions, 
-        ];
     }
 
-    calculateEnergyConsumption(mainThrust: number, leftThrust: number, rightThrust: number): number {
-        // Example energy consumption calculation
-        return Math.abs(mainThrust) + Math.abs(leftThrust) + Math.abs(rightThrust);
+    computeEnergyConsumption(actions: SpaceshipAction[]): number {
+        let total = 0;
+        actions.forEach(action => {
+            if (action[0] === "setEngineThrust") {
+                total += this.calculateDodgeEnergyConsumption(action[1], action[2], action[3]);
+            }
+            if (action[0] === "fireLaser") {
+                total += 6;
+            }
+            if (action[0] === "fireRocket") {
+                total += 20;
+            }
+        });
+        return total
+    }
+
+    calculateDodgeEnergyConsumption(mainThrust: number, leftThrust: number, rightThrust: number): number {
+        let energyConsumption = 0
+        if(mainThrust > 0) {
+            energyConsumption += 12.5
+        }
+        if(leftThrust > 0 || rightThrust > 0) {
+            energyConsumption += 8.33
+        }
+        
+        return energyConsumption
     }
 
     onStart(spaceship: Spaceship, width: number, height: number): void {
@@ -257,7 +294,7 @@ class VicecarloansSpaceship implements SpaceshipManager {
         console.log("Y SHIP", willCollideWithShipMoveY)
 
         let l = lCo
-        if (willCollideWithAsteroidMoveLeft || willCollideWithShipMoveLeft) {
+        if (willCollideWithAsteroidMoveLeft) {
             if (this.spaceship.rotation < 0) {
                 // Head up
                 l = lCo
@@ -267,9 +304,19 @@ class VicecarloansSpaceship implements SpaceshipManager {
             }
         }
 
+        if(willCollideWithShipMoveLeft) {
+            if (this.spaceship.rotation < 0) {
+                // Head up
+                l = lCo
+            } else {
+                // Head down
+                l = rCo
+            }
+        }
+
         
         let r = rCo
-        if (willCollideWithAsteroidMoveRight || willCollideWithShipMoveRight) {
+        if (willCollideWithAsteroidMoveRight) {
             if (this.spaceship.rotation < 0) {
                 // Head up
                 r = rCo
@@ -278,27 +325,38 @@ class VicecarloansSpaceship implements SpaceshipManager {
                 r = 0
             }
         }
+
+        if(willCollideWithShipMoveRight) {
+            if (this.spaceship.rotation < 0) {
+                // Head up
+                r = rCo
+            } else {
+                // Head down
+                r = lCo
+            }
+        }
+        
+        
         const lThrust = l != 0  ? l : 0;
         const rThrust = r != 0  ? r : 0; 
-        const m = willCollideWithAsteroidMoveY || willCollideWithShipMoveY ? 0: mainCo;
+        const m = willCollideWithAsteroidMoveY ? 0: mainCo;
         const mThrust = m != 0 ? m : 0;
         // return thurst != 0 ? thurst * this.MOVE_FACTOR + 10 : 0;
         return [mThrust, lThrust, rThrust]
     }
 
-    optimizeDodge(): SpaceshipAction[] {
+    optimizeDodge(): SetEngineThrustAction[] {
+        this.lastDodgeMs = 1000;
         const avoidanceVector = { x: 0, y: 0 };
         const addAvoidanceVector = (threat: any, weightFactor: number = 1) => {
             const dx = this.spaceship.position.x - threat.x;
             const dy = this.spaceship.position.y - threat.y;
-            console.log(dx, dy)
             const distance = calculateDistance(this.spaceship.position.x, this.spaceship.position.y, threat.x, threat.y);
-            console.log(distance)
             if (distance === 0) return; // Avoid division by zero
             const normalizedDx = dx / distance;
             const normalizedDy = dy / distance;
-            avoidanceVector.x += normalizedDx;
-            avoidanceVector.y += normalizedDy;
+            avoidanceVector.x = Math.max(50, avoidanceVector.x + normalizedDx);
+            avoidanceVector.y = Math.max(50, avoidanceVector.y + normalizedDy);
         };
 
         
@@ -315,7 +373,6 @@ class VicecarloansSpaceship implements SpaceshipManager {
 
         const [main, left, right] = this.computeMove(avoidanceVector);
        
-      
         
         return [["setEngineThrust", main, left, right]];
     }
