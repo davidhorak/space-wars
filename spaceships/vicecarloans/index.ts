@@ -150,7 +150,7 @@ class VicecarloansSpaceship implements SpaceshipManager {
                 this.lastRocketFireMs = 500;
             }
             return [
-                ["setEngineThrust", 0, 1, 0],
+                ["setEngineThrust", 0, 5, 0],
                 ...fireActions
             ]
         }
@@ -160,7 +160,7 @@ class VicecarloansSpaceship implements SpaceshipManager {
         
         
         if (this.spaceship.energy >= this.DESIRED_ENERGY) {
-            actions.push(["setEngineThrust", 0, 1, 0]);
+            actions.push(["setEngineThrust", 0, 5, 0]);
             // Fire lasers based on enemy proximity and aim at predicted enemy position 
             if (this.spaceship.laserReloadTimerSec === 0 && this.lastRocketFireMs <= 0) {
                 actions.push(["fireLaser"]);
@@ -362,8 +362,8 @@ class VicecarloansSpaceship implements SpaceshipManager {
         
         this.potentialLasersHit.forEach(laser => addAvoidanceVector({x: laser.collider.position.x, y: laser.collider.position.y}));
         this.potentialRocketsHit.forEach(rocket => addAvoidanceVector({x: rocket.collider.position.x, y: rocket.collider.position.y}));
-        this.enemies.forEach(enemy => addAvoidanceVector({x: enemy.collider.position.x, y: enemy.collider.position.y}));
-        this.potentialAsteroidsHit.forEach(asteroid => addAvoidanceVector({x: asteroid.collider.position.x, y: asteroid.collider.position.y}, 2));
+        this.potentialEnemiesHit.forEach(enemy => addAvoidanceVector({x: enemy.collider.position.x, y: enemy.collider.position.y}));
+        this.asteroidLocs.forEach(asteroid => addAvoidanceVector({x: asteroid.collider.position.x, y: asteroid.collider.position.y}, 2));
 
 
 
@@ -374,7 +374,7 @@ class VicecarloansSpaceship implements SpaceshipManager {
         const [main, left, right] = this.computeMove(avoidanceVector);
        
         
-        return [["setEngineThrust", main, left, right]];
+        return main + left + right === 0 ? [] : [["setEngineThrust", main, left, right]];
     }
 }
 
