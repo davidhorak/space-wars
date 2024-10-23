@@ -5,6 +5,7 @@ import type {
 } from "./spaceshipManager";
 import { createDummy } from "./_samples/dummy";
 import { createRocinante } from "./gordon-tactable/rocinante";
+import { initShip as initVicecarloans } from "./vicecarloans";
 // import {
 //   createEngineTester,
 //   createLaserTester,
@@ -42,6 +43,7 @@ const spaceshipFactories: SpaceshipManagerFactory[] = [
     createDummy(),
     createDummy(),
     createRocinante("Rocinante"),
+    initVicecarloans(),
   //   createLaserTester("Laser Tester 1"),
   //   createLaserTester("Laser Tester 2"),
   //   createRocketTester("Rocket Tester 1"),
