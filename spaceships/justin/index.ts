@@ -7,7 +7,7 @@ import type {
   Spaceship,
 } from "../";
 import { Vector2 } from "../../client/src/client/utils";
-import { SetEngineThrustAction } from "../spaceshipAction";
+import { FireRocketAction, SetEngineThrustAction } from "../spaceshipAction";
 
 const LOOK_AHEAD_DISTANCE = 100;
 
@@ -85,11 +85,10 @@ class DangerZone {
 }
 
 const justin = (name: string): SpaceshipManager => {
-  let engineThrustEnergyTrigger = 100;
-  let attacking = true;
+  let thrustOnCooldown = false;
+  let attackOnCooldown = false;
   let lastRocketFireMs = 0;
   let lineOfSight: Vector2 = { x: 0, y: 0 };
-  // let dangerZone;
 
   const getDistance = (position1: Vector2, position2: Vector2) => {
     return Math.sqrt(
@@ -105,7 +104,7 @@ const justin = (name: string): SpaceshipManager => {
     let mainThrust = 0;
     let leftThrust = 0;
     let rightThrust = 0;
-    if (spaceship.energy > 70) {
+    if (spaceship.energy > 20 && !thrustOnCooldown) {
       if (closestFlightThreat === null) {
         if (spaceship.energy > 70) {
           mainThrust = 25 + Math.random() * 50;
@@ -168,14 +167,6 @@ const justin = (name: string): SpaceshipManager => {
       }
     });
 
-    // console.log("closestFlightThreat", closestFlightThreat);
-
-    // if (flightThreats.length > 0) {
-    //   console.log(flightThreats);
-    // }
-
-    // console.log("gameObjects", gameObjects);
-
     if (lastRocketFireMs > 0) {
       lastRocketFireMs -= deltaTimeMs;
       if (lastRocketFireMs <= 0) {
@@ -183,39 +174,36 @@ const justin = (name: string): SpaceshipManager => {
       }
     }
 
-    if (self.energy <= 10) {
-      attacking = false;
-      engineThrustEnergyTrigger = 25 + Math.random() * 50;
+    if (!thrustOnCooldown) {
+      const flightPathAction = handleFlightPath(
+        self,
+        closestFlightThreat,
+        dangerZone
+      );
+      actions.push(flightPathAction);
     }
 
-    // if (self.energy >= 30) {
-    //   engineThrustEnergyTrigger = Infinity;
-    const flightPathAction = handleFlightPath(
-      self,
-      closestFlightThreat,
-      dangerZone
-    );
-    //   console.log("flightPathAction", flightPathAction);
-    actions.push(flightPathAction);
+    // if (self.energy <= 10) {
+    //   attackOnCooldown = true;
     // }
-    if (self.energy >= 30) {
-      attacking = true;
+
+    // if (self.energy >= 50) {
+    //   attackOnCooldown = false;
+    // }
+
+    if (self.energy <= 20) {
+      thrustOnCooldown = true;
     }
-    if (
-      attacking &&
-      self.energy > 60 &&
-      self.rocketReloadTimerSec == 0 &&
-      self.rockets > 0
-    ) {
-      // actions.push(["fireRocket"]);
-      lastRocketFireMs = 500;
-    } else if (
-      lastRocketFireMs <= 0 &&
-      attacking &&
-      self.energy > 10 &&
-      self.laserReloadTimerSec == 0
-    ) {
-      // actions.push(["fireLaser"]);
+    if (self.energy >= 70 + Math.random() * 20) {
+      thrustOnCooldown = false;
+    }
+
+    // shoot a rocket once every 10 seconds
+    if (lastRocketFireMs <= 0) {
+      lastRocketFireMs = 10000;
+      actions.push(["fireRocket"]);
+    } else {
+      lastRocketFireMs -= deltaTimeMs;
     }
 
     return actions;
@@ -228,9 +216,9 @@ const justin = (name: string): SpaceshipManager => {
       this.onReset(spaceship, width, height);
     },
     onReset: () => {
-      attacking = true;
       lastRocketFireMs = 0;
-      engineThrustEnergyTrigger = 100;
+      thrustOnCooldown = false;
+      attackOnCooldown = false;
     },
   };
 };
