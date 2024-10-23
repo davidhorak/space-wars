@@ -181,7 +181,51 @@ class KodySpaceshipManager implements SpaceshipManager {
       return ["setEngineThrust", mainThrust, leftThrust, rightThrust];
     }
 
-    return ["setEngineThrust", 0, state.spaceship.energy <= 20 ? 0 : 100, 0];
+    // Find the closest spaceship
+    let closestShip: Spaceship | null = null;
+    let closestDistance = Infinity;
+
+    for (const obj of state.gameObjects) {
+      if (obj.type === "spaceship" && obj.id !== ship.id && !obj.destroyed) {
+        const distance = Math.hypot(
+          obj.position.x - ship.position.x,
+          obj.position.y - ship.position.y
+        );
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestShip = obj as Spaceship;
+        }
+      }
+    }
+
+    if (closestShip) {
+      // Calculate future position of the closest ship
+      const predictionTime = 1; // Adjustable prediction time in seconds
+      const futureX =
+        closestShip.position.x + closestShip.velocity.x * predictionTime;
+      const futureY =
+        closestShip.position.y + closestShip.velocity.y * predictionTime;
+
+      // Calculate angle to the predicted future position of the closest ship
+      const angleToShip = Math.atan2(
+        futureY - ship.position.y,
+        futureX - ship.position.x
+      );
+
+      // Calculate the difference between current rotation and desired rotation
+      const rotationDiff =
+        ((angleToShip - ship.rotation + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+
+      // Determine which direction to rotate
+      if (Math.abs(rotationDiff) > 0.1) {
+        if (rotationDiff > 0) {
+          leftThrust = 100;
+        } else {
+          rightThrust = 100;
+        }
+      }
+    }
+    return ["setEngineThrust", 0, leftThrust, rightThrust];
   }
 
   onUpdate(state: SpaceState): SpaceshipAction[] {
