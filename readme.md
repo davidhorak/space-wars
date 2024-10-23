@@ -165,6 +165,14 @@ Windows:
 powershell -Command { $env:GOOS="js"; $env:GOARCH="wasm"; go build -o ./client/public/space-wars.wasm }
 ```
 
+#### How to Build the Kernel WASM Module with Docker (without installing Go)
+
+```sh
+source ./bin/docker-build-kernel.sh
+```
+
+See [bin/docker-build-kernel.sh](bin/docker-build-kernel.sh) for more information.
+
 ### How to run the kernel tests with full coverage
 
 Linux/MacOS:
