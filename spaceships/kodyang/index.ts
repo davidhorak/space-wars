@@ -4,7 +4,10 @@ import type {
   SpaceState,
   SpaceshipAction,
   Spaceship,
+  GameObject,
 } from "..";
+import { SetEngineThrustAction } from "../spaceshipAction";
+import { Projectile } from "../types";
 
 const LASER_SPEED = 320;
 const ROCKET_SPEED = 274;
@@ -76,6 +79,111 @@ class KodySpaceshipManager implements SpaceshipManager {
     return false;
   }
 
+  willCollide(ship: Spaceship, obj: Projectile | Spaceship) {
+    /**
+     * ship is me
+     * obj is the other object
+     *
+     * both myself and the obj has position and velocity
+     *
+     * calculate if i will intersect with the object within one second
+     *
+     * in this calculation have a togglable collision radius
+     *
+     * return true if i will intersect with the object within one second
+     */
+    const COLLISION_RADIUS = 25; // Adjustable collision radius
+    const TIME_HORIZON = 1; // Check for collisions within 1 second
+
+    // Calculate relative position and velocity
+    const relativeX = obj.position.x - ship.position.x;
+    const relativeY = obj.position.y - ship.position.y;
+    const relativeVx = obj.velocity.x - ship.velocity.x;
+    const relativeVy = obj.velocity.y - ship.velocity.y;
+
+    // Calculate coefficients for the quadratic equation
+    const a = relativeVx * relativeVx + relativeVy * relativeVy;
+    const b = 2 * (relativeX * relativeVx + relativeY * relativeVy);
+    const c =
+      relativeX * relativeX +
+      relativeY * relativeY -
+      Math.pow(COLLISION_RADIUS, 2);
+
+    // Solve the quadratic equation
+    const discriminant = b * b - 4 * a * c;
+    if (discriminant < 0) {
+      return false; // No real solutions, objects won't collide
+    }
+
+    const t1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+    const t2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+
+    // Check if either solution is within the time horizon
+    if ((t1 > 0 && t1 <= TIME_HORIZON) || (t2 > 0 && t2 <= TIME_HORIZON)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  calcMovement(state: SpaceState): SetEngineThrustAction {
+    /**
+     * state.spaceship is me
+     * state.gameObjects is all other objects
+     *
+     * The objective is to dodge everything.
+     *
+     * First, iterate through every game object (skipping myself)
+     *  if the object is a laser or a rocket, then check if it will run into me
+     *    if it will, turn and go forward
+     * if the object is a spaceship, turn towards it
+     * otherwise, turn in place
+     */
+
+    const ship = state.spaceship;
+    let mainThrust = 0;
+    let leftThrust = 0;
+    let rightThrust = 0;
+    let targetRotation = ship.rotation;
+
+    let willCollide = false;
+    for (const obj of state.gameObjects) {
+      if (obj.id === ship.id) continue;
+
+      if (obj.type === "laser" || obj.type === "rocket") {
+        if (this.willCollide(ship, obj)) {
+          willCollide = true;
+          // Dodge by turning perpendicular to the incoming projectile
+          const angleToProjectile = Math.atan2(
+            obj.position.y - ship.position.y,
+            obj.position.x - ship.position.x
+          );
+          targetRotation = angleToProjectile + Math.PI / 2;
+          mainThrust = 100; // Full thrust to dodge
+          break;
+        }
+      }
+    }
+
+    if (willCollide) {
+      // Adjust rotation
+      const rotationDiff =
+        ((targetRotation - ship.rotation + Math.PI * 3) % (Math.PI * 2)) -
+        Math.PI;
+      if (Math.abs(rotationDiff) > 0.1) {
+        if (rotationDiff > 0) {
+          rightThrust = 100;
+        } else {
+          leftThrust = 100;
+        }
+      }
+
+      return ["setEngineThrust", mainThrust, leftThrust, rightThrust];
+    }
+
+    return ["setEngineThrust", 0, state.spaceship.energy <= 20 ? 0 : 100, 0];
+  }
+
   onUpdate(state: SpaceState): SpaceshipAction[] {
     // lazer speed 320
     // rocket speed 274
@@ -104,9 +212,7 @@ class KodySpaceshipManager implements SpaceshipManager {
       }
     }
 
-    const resp: SpaceshipAction[] = [
-      ["setEngineThrust", 0, state.spaceship.energy <= 20 ? 0 : 0.1, 0],
-    ];
+    const resp: SpaceshipAction[] = [this.calcMovement(state)];
 
     if (shouldFireLaser) {
       resp.push(["fireLaser"]);
