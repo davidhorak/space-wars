@@ -16,6 +16,7 @@ const ppalandeTactable = (name: string): SpaceshipManager => {
   const MIN_ENERGY_FOR_ACTIONS = 30;
   const RECHARGE_THRESHOLD = 70;
 
+
   const findNearestSpaceship = (self: Spaceship, gameObjects: GameObject[]): Spaceship | null => {
     let nearestDistance = Infinity;
     let nearestSpaceship: Spaceship | null = null;
