@@ -157,4 +157,4 @@ const ppalandeTactable = (name: string): SpaceshipManager => {
 };
 
 export const createPpalandeTactable = (): SpaceshipManagerFactory => () =>
-  Promise.resolve(ppalandeTactable("ppalande-tactable"));
+  Promise.resolve(ppalandeTactable("dattebayo"));
