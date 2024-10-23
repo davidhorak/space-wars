@@ -96,7 +96,6 @@ const rocinante = (name: string): SpaceshipManager => {
     //Target Lock
     if (target == -1) {
       gameObjects.forEach((gameObject, index) => {
-        console.log(`GameObject ${index}:`, gameObject + " " + gameObject.type);
         if (gameObject.type == "spaceship" && gameObject.id != self.id && !gameObject.destroyed){
           target = index;
         }
@@ -106,7 +105,6 @@ const rocinante = (name: string): SpaceshipManager => {
       if (targetShip.type == "spaceship") {
         if(targetShip.destroyed) {
           gameObjects.forEach((gameObject, index) => {
-            console.log(`GameObject ${index}:`, gameObject + " " + gameObject.type);
             if (gameObject.type == "spaceship" && gameObject.id != self.id && !gameObject.destroyed){
               target = index;
             }
@@ -115,24 +113,19 @@ const rocinante = (name: string): SpaceshipManager => {
       }
     }
 
-    console.log("Self: " + self.id + " Rotation: " + self.rotation + " x: " + self.position.x + " y: " + self.position.y);
-    console.log("Target: " + gameObjects[target].id + " x:" + gameObjects[target].position.x + " y: " + gameObjects[target].position.y);
-
     // Calculate the differences in position
     const dy = gameObjects[target].position.y - self.position.y;
     const dx = gameObjects[target].position.x - self.position.x;
   
     // Calculate the angle to obj2 from obj1
     const theta2 = Math.atan2(dy, dx); // Angle in radians
-    console.log("theta2: " + theta2)
+
     // Calculate the direction difference
     const directionDifference = theta2 - self.rotation;
-    console.log("directionDifference: " + directionDifference);
   
     // Normalize the angle difference to the range of -π to π
     const normalizedDifference = ((directionDifference + Math.PI) % (2 * Math.PI)) - Math.PI;
 
-    console.log("Angle diff: " + normalizedDifference);
     if (self.energy == 0) {
       mode = "Recharge"
       let mainThrust = 0;
