@@ -4,13 +4,13 @@ import type {
   SpaceState,
 } from "./spaceshipManager";
 import { createDummy } from "./_samples/dummy";
+import { createRocinante } from "./gordon-tactable/rocinante";
 // import {
 //   createEngineTester,
 //   createLaserTester,
 //   createRocketTester,
 // } from "./_samples/tester";
 
-import { initShip as initVicecarloanShip } from "./vicecarloans";
 export {
   isAsteroid,
   isExplosion,
@@ -36,12 +36,12 @@ export type {
 } from "./types";
 
 const spaceshipFactories: SpaceshipManagerFactory[] = [
+    // createDummy(),
+    // createDummy(),
+    // createDummy(),
     createDummy(),
     createDummy(),
-    createDummy(),
-    createDummy(),
-    createDummy(),
-    initVicecarloanShip()
+    createRocinante("Rocinante"),
   //   createLaserTester("Laser Tester 1"),
   //   createLaserTester("Laser Tester 2"),
   //   createRocketTester("Rocket Tester 1"),
