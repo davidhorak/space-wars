@@ -27,7 +27,7 @@ const isAsteroidBlockingShot = (ship: Spaceship, enemy: Spaceship, asteroids: As
 
 
 class VicecarloansSpaceship implements SpaceshipManager {
-    name: string = "vicecarloans-MAGA"
+    name: string = "vicecarloans"
     private spaceship: Spaceship;
     private width: number;
     private height: number;
@@ -39,8 +39,8 @@ class VicecarloansSpaceship implements SpaceshipManager {
     private lastDodgeMs = 0;
     // Config
     private ENEGERY_THRESHOLD = 10;
-    private DESIRED_ENERGY = 40;
-    private DESIRED_ENERGY_FOR_SPIN_MOVE = 50;
+    private DESIRED_ENERGY = 50;
+    private DESIRED_ENERGY_FOR_SPIN_MOVE = 30;
     private ENEGERY_THRESHOLD_LASER = 25;
     private ENEGERY_THRESHOLD_ROCKET = 25;
     private DODGE_THRESHOLD_LASER = 200;
@@ -48,7 +48,7 @@ class VicecarloansSpaceship implements SpaceshipManager {
     private DODGE_THRESHOLD_ENEMIES = 100; 
     private DODGE_THRESHOLD_ASTEROID = 100; 
     private MOVE_FACTOR_Y = 1;
-    private MOVE_ADD_Y = 10;
+    private MOVE_ADD_Y = 30;
     private MOVE_FACTOR_X = 1;
     private MOVE_ADD_X = 5;
     // Array of objects
@@ -141,16 +141,16 @@ class VicecarloansSpaceship implements SpaceshipManager {
         if(this.potentialEnemiesHit.length > 1 && this.spaceship.energy > this.DESIRED_ENERGY_FOR_SPIN_MOVE) {
             console.log("PERFORM SPIN MOVE")
             const fireActions: Array<FireLaserAction | FireRocketAction> = []
-            if(this.spaceship.laserReloadTimerSec == 0 && this.lastRocketFireMs <= 0 && this.lastLaserFireMs <= 0) {
-                fireActions.push(["fireLaser"]);
-                this.lastLaserFireMs = 400;
-            }
+
             if(this.spaceship.rocketReloadTimerSec == 0 && this.lastRocketFireMs <= 0) {
                 fireActions.push(["fireRocket"]);
                 this.lastRocketFireMs = 500;
             }
+            if(this.spaceship.laserReloadTimerSec == 0 && this.lastRocketFireMs <= 0 && this.lastLaserFireMs <= 0) {
+                fireActions.push(["fireLaser"]);
+            }
             return [
-                ["setEngineThrust", 0, 1, 0],
+                ["setEngineThrust", 0, 5, 0],
                 ...fireActions
             ]
         }
@@ -160,16 +160,16 @@ class VicecarloansSpaceship implements SpaceshipManager {
         
         
         if (this.spaceship.energy >= this.DESIRED_ENERGY) {
-            actions.push(["setEngineThrust", 0, 1, 0]);
-            // Fire lasers based on enemy proximity and aim at predicted enemy position 
-            if (this.spaceship.laserReloadTimerSec === 0 && this.lastRocketFireMs <= 0) {
-                actions.push(["fireLaser"]);
-                this.lastLaserFireMs = 400;
-            }
+            actions.push(["setEngineThrust", 0, 5, 0]);
+
             // Fire rockets if the energy threshold is met and conditions are suitable
             if (this.spaceship.rocketReloadTimerSec === 0 && this.spaceship.rockets > 0 && this.lastRocketFireMs <= 0 && this.lastLaserFireMs <= 0) {
                 actions.push(["fireRocket"]);
                 this.lastRocketFireMs = 500;
+            }
+            // Fire lasers based on enemy proximity and aim at predicted enemy position 
+            if (this.spaceship.laserReloadTimerSec === 0 && this.lastRocketFireMs <= 0) {
+                actions.push(["fireLaser"]);
             }
 
             
@@ -362,8 +362,8 @@ class VicecarloansSpaceship implements SpaceshipManager {
         
         this.potentialLasersHit.forEach(laser => addAvoidanceVector({x: laser.collider.position.x, y: laser.collider.position.y}));
         this.potentialRocketsHit.forEach(rocket => addAvoidanceVector({x: rocket.collider.position.x, y: rocket.collider.position.y}));
-        this.enemies.forEach(enemy => addAvoidanceVector({x: enemy.collider.position.x, y: enemy.collider.position.y}));
-        this.potentialAsteroidsHit.forEach(asteroid => addAvoidanceVector({x: asteroid.collider.position.x, y: asteroid.collider.position.y}, 2));
+        this.potentialEnemiesHit.forEach(enemy => addAvoidanceVector({x: enemy.collider.position.x, y: enemy.collider.position.y}));
+        this.asteroidLocs.forEach(asteroid => addAvoidanceVector({x: asteroid.collider.position.x, y: asteroid.collider.position.y}, 2));
 
 
 
@@ -374,7 +374,7 @@ class VicecarloansSpaceship implements SpaceshipManager {
         const [main, left, right] = this.computeMove(avoidanceVector);
        
         
-        return [["setEngineThrust", main, left, right]];
+        return main + left + right === 0 ? [] : [["setEngineThrust", main, left, right]];
     }
 }
 
