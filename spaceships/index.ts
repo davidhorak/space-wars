@@ -9,6 +9,7 @@ import { createRocinante } from "./gordon-tactable/rocinante";
 import { initShip as initVicecarloans } from "./vicecarloans";
 import { createAmazingLilySpaceship } from "./lily";
 import { createJustin } from "./justin";
+import { createKodyShip } from "./kodyang";
 // import {
 //   createEngineTester,
 //   createLaserTester,
@@ -40,15 +41,16 @@ export type {
 } from "./types";
 
 const spaceshipFactories: SpaceshipManagerFactory[] = [
-    // createDummy(),
-    // createDummy(),
-    // createDummy(),
-    createDummy(),
-    createJustin(),
-    createRocinante("Rocinante"),
-    initVicecarloans(),
-    createAmazingLilySpaceship(),
-    createPpalandeTactable(),
+  // createDummy(),
+  // createDummy(),
+  // createDummy(),
+  createDummy(),
+  createJustin(),
+  createRocinante("Rocinante"),
+  initVicecarloans(),
+  createAmazingLilySpaceship(),
+  createPpalandeTactable(),
+  createKodyShip(),
   //   createLaserTester("Laser Tester 1"),
   //   createLaserTester("Laser Tester 2"),
   //   createRocketTester("Rocket Tester 1"),
