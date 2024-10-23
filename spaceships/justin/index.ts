@@ -9,7 +9,7 @@ import type {
 import { Vector2 } from "../../client/src/client/utils";
 import { SetEngineThrustAction } from "../spaceshipAction";
 
-const LOOK_AHEAD_DISTANCE = 200;
+const LOOK_AHEAD_DISTANCE = 100;
 
 class DangerZone {
   public left: Vector2 = { x: 0, y: 0 };
@@ -68,7 +68,7 @@ class DangerZone {
     const leftCross = crossProduct(vectorToLeft, vectorToObject);
     const rightCross = crossProduct(vectorToObject, vectorToRight);
 
-    const isInDanger = leftCross >= 0 && rightCross >= 0;
+    const isInDanger = leftCross > 0 || rightCross > 0;
 
     let side: "left" | "right" | null = null;
     if (isInDanger) {
@@ -105,29 +105,32 @@ const justin = (name: string): SpaceshipManager => {
     let mainThrust = 0;
     let leftThrust = 0;
     let rightThrust = 0;
-    if (closestFlightThreat === null && spaceship.energy >= 60) {
-      // const probabilityOfRest = 0.6;
-      // if (Math.random() < probabilityOfRest) {
-      // mainThrust = 0;
-      // } else {
-      mainThrust = 25 + Math.random() * 50;
-      leftThrust = 0;
-      rightThrust = 0;
-      // }
-      // return ["setEngineThrust", mainThrust, leftThrust, rightThrust];
-    } else if (closestFlightThreat) {
-      const { side } = dangerZone.isObjectInDangerZone(
-        spaceship,
-        closestFlightThreat,
-        dangerZone
-      );
-      mainThrust = 25 + Math.random() * 50;
-      if (side === "left") {
-        leftThrust = 25 + Math.random() * 50;
-      } else if (side === "right") {
-        rightThrust = 25 + Math.random() * 50;
+    if (spaceship.energy > 70) {
+      if (closestFlightThreat === null) {
+        if (spaceship.energy > 70) {
+          mainThrust = 25 + Math.random() * 50;
+        } else {
+          mainThrust = 0;
+        }
+        leftThrust = 0;
+        rightThrust = 0;
+      } else {
+        const { side } = dangerZone.isObjectInDangerZone(
+          spaceship,
+          closestFlightThreat,
+          dangerZone
+        );
+        mainThrust = 25 + Math.random() * 50;
+        if (side === "left") {
+          leftThrust = 25 + Math.random() * 50;
+        } else if (side === "right") {
+          rightThrust = 25 + Math.random() * 50;
+        } else {
+          mainThrust = 0;
+          leftThrust = 0;
+          rightThrust = 0;
+        }
       }
-      // return ["setEngineThrust", mainThrust, leftThrust, rightThrust];
     }
     return ["setEngineThrust", mainThrust, leftThrust, rightThrust];
   };
@@ -141,7 +144,6 @@ const justin = (name: string): SpaceshipManager => {
     if (!self) {
       return actions;
     }
-    // self.lookAheadDistance = LOOK_AHEAD_DISTANCE;
 
     lineOfSight = {
       x: self.position.x + Math.cos(self.rotation),
@@ -149,8 +151,6 @@ const justin = (name: string): SpaceshipManager => {
     };
 
     const dangerZone = new DangerZone(self);
-
-    // self.dangerZone = dangerZone; // debugging
 
     const flightThreats = gameObjects.filter(
       (object) =>
@@ -185,29 +185,29 @@ const justin = (name: string): SpaceshipManager => {
 
     if (self.energy <= 10) {
       attacking = false;
-      // engineThrustEnergyTrigger = 25 + Math.random() * 50;
+      engineThrustEnergyTrigger = 25 + Math.random() * 50;
     }
 
-    if (self.energy >= 60) {
-      engineThrustEnergyTrigger = Infinity;
-      const flightPathAction = handleFlightPath(
-        self,
-        closestFlightThreat,
-        dangerZone
-      );
-      // console.log("flightPathAction", flightPathAction);
-      actions.push(flightPathAction);
-    }
+    // if (self.energy >= 30) {
+    //   engineThrustEnergyTrigger = Infinity;
+    const flightPathAction = handleFlightPath(
+      self,
+      closestFlightThreat,
+      dangerZone
+    );
+    //   console.log("flightPathAction", flightPathAction);
+    actions.push(flightPathAction);
+    // }
     if (self.energy >= 30) {
       attacking = true;
     }
     if (
       attacking &&
-      self.energy > 20 &&
+      self.energy > 60 &&
       self.rocketReloadTimerSec == 0 &&
       self.rockets > 0
     ) {
-      //   actions.push(["fireRocket"]);
+      // actions.push(["fireRocket"]);
       lastRocketFireMs = 500;
     } else if (
       lastRocketFireMs <= 0 &&
@@ -215,7 +215,7 @@ const justin = (name: string): SpaceshipManager => {
       self.energy > 10 &&
       self.laserReloadTimerSec == 0
     ) {
-      actions.push(["fireLaser"]);
+      // actions.push(["fireLaser"]);
     }
 
     return actions;
