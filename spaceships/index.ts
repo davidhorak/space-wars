@@ -4,6 +4,7 @@ import type {
   SpaceState,
 } from "./spaceshipManager";
 import { createDummy } from "./_samples/dummy";
+import { createPpalandeTactable } from "./ppalande-tactable";
 import {
   createEngineTester,
   createLaserTester,
@@ -40,6 +41,7 @@ const spaceshipFactories: SpaceshipManagerFactory[] = [
     createDummy(),
     createDummy(),
     createDummy(),
+    createPpalandeTactable(),
   //   createLaserTester("Laser Tester 1"),
   //   createLaserTester("Laser Tester 2"),
   //   createRocketTester("Rocket Tester 1"),
