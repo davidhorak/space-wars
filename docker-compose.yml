@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  compile:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    command: /bin/sh -c "GOOS=js GOARCH=wasm go build -buildvcs=false -o ./client/public/space-wars.wasm"
+
+  spacewars:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    working_dir: /app/client
+    volumes:
+      - .:/app
+    command: /bin/sh -c "yarn install && yarn dev --host"
+    depends_on:
+      - compile
+    ports:
+      - "5173:5173"
