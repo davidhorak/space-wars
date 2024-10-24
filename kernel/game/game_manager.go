@@ -112,6 +112,9 @@ func (manager *GameManager) OnShipDestroyed() {
 			}
 		}
 	}
+
+	if manager.destroyedShips >= len(manager.spaceShips)-1 {
+		manager.gracefulEndTimerMs = (ShipExplosionDurationSec * 1000) + 100
 }
 
 func (manager *GameManager) Reset() {
