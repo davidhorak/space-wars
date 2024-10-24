@@ -100,8 +100,17 @@ func (manager *GameManager) RemoveSpaceship(name string) error {
 
 func (manager *GameManager) OnShipDestroyed() {
 	manager.destroyedShips++
-	if manager.destroyedShips >= len(manager.spaceShips)-1 {
-		manager.gracefulEndTimerMs = (ShipExplosionDurationSec * 1000) + 100
+
+	shipsToScore := 1
+	if len(manager.spaceShips) > 3 {
+		shipsToScore = 3
+	}
+	if manager.destroyedShips >= len(manager.spaceShips)-shipsToScore {
+		for _, spaceShip := range manager.spaceShips {
+			if spaceShip.enabled {
+				spaceShip.AddScore(ScorePerSurvivor)
+			}
+		}
 	}
 }
 
