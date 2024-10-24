@@ -10,6 +10,9 @@ import { initShip as initVicecarloans } from "./vicecarloans";
 import { createAmazingLilySpaceship } from "./lily";
 import { createJustin } from "./justin";
 import { createKodyShip } from "./kodyang";
+import { createTnT } from "./mason";
+import { createLethalrush } from "./saro";
+
 // import {
 //   createEngineTester,
 //   createLaserTester,
@@ -50,7 +53,9 @@ const spaceshipFactories: SpaceshipManagerFactory[] = [
   initVicecarloans(),
   createAmazingLilySpaceship(),
   createPpalandeTactable(),
+  createTnT(),
   createKodyShip(),
+  createLethalrush(),
   //   createLaserTester("Laser Tester 1"),
   //   createLaserTester("Laser Tester 2"),
   //   createRocketTester("Rocket Tester 1"),
