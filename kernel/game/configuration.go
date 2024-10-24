@@ -30,6 +30,7 @@ const (
 	ShipExplosionDurationSec       = 1
 	ScorePerKill                   = 100
 	ScorePerDamageCoefficient      = 0.5
+	ScorePerSurvivor               = 100
 
 	// Laser configuration
 	LaserReloadSec         = 0.25
